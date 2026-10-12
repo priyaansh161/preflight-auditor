@@ -24,7 +24,8 @@ export function renderHtml(r) {
 <header>
   <p class="eyebrow">Landing page pre-flight audit</p>
   <h1>${esc(r.page?.title || r.meta.url)}</h1>
-  <p class="meta"><a href="${esc(r.meta.url)}">${esc(r.meta.url)}</a><br>${esc(date)} IST · ${r.meta.device === 'desktop' ? 'Desktop' : 'Mobile (Pixel 7)'} · ${r.meta.live ? 'Live mode' : 'Safe mode (no data sent to ad platforms)'}</p>
+  <p class="meta"><a href="${esc(r.meta.url)}">${esc(r.meta.url)}</a><br>${esc(date)} IST · ${r.meta.device === 'desktop' ? 'Desktop' : 'Mobile (Pixel 7)'} · ${r.meta.live ? 'Live mode' : 'Safe mode (no data sent to ad platforms)'}${r.meta.visitedFrom ? ` · Visited from ${esc(country(r.meta.visitedFrom))}` : ''}</p>
+  ${r.meta.outsideMarket ? `<p class="coverage">This check ran from ${esc(country(r.meta.visitedFrom))}, but the store sells in ${esc(r.meta.storeCurrency)}. Some sites load extra tags only for visitors in ${esc(country(r.meta.homeMarket))}, so those may be missing here. Run it from ${esc(country(r.meta.homeMarket))} for the view your ad traffic gets.</p>` : ''}
 </header>
 
 <section class="verdict v-${r.verdict.level}">
@@ -133,6 +134,8 @@ function card(f) {
 </article>`;
 }
 
+function country(code) { try { return new Intl.DisplayNames(['en'], { type: 'region' }).of(code); } catch { return code; } }
+
 function stepLabel(r, name) { return r.steps.find(s => s.name === name)?.label || name; }
 
 const CSS = `
@@ -146,7 +149,8 @@ const CSS = `
 main{max-width:980px;margin:0 auto;padding:32px 16px 64px}
 a{color:inherit}h1{font-size:26px;line-height:1.25;margin:4px 0 8px}h2{font-size:19px;margin:0 0 6px}h3{font-size:16px;margin:6px 0}
 .eyebrow{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0}
-.meta,.lead,.note{color:var(--muted)}.meta a{word-break:break-all}
+.meta,.lead,.note{color:var(--muted)}
+.coverage{border:1px dashed var(--medium);background:var(--medium-bg);border-radius:10px;padding:10px 14px;font-size:14px}.meta a{word-break:break-all}
 section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin:16px 0}
 header{margin-bottom:8px}.sub{color:var(--muted);font-weight:400}
 .verdict{border-width:2px}.verdict-label{font-size:22px;font-weight:700}

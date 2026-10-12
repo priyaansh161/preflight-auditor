@@ -42,7 +42,7 @@ export async function analyse(ev, { explainWithLLM = false, log = () => {} } = {
   }
 
   return {
-    meta: { url, device: ev.device, live: ev.live, startedAt: ev.startedAt, finishedAt: ev.finishedAt, auditor: 'preflight-auditor 1.0' },
+    meta: { url, device: ev.device, live: ev.live, startedAt: ev.startedAt, finishedAt: ev.finishedAt, auditor: 'preflight-auditor 1.0', ...coverage(ev, events) },
     verdict, findings, ai,
     page: ev.page, product: ev.product && { id: ev.product.id, title: ev.product.title, price: ev.product.price / 100, variants: ev.product.variants.length },
     chosenVariant: ev.chosenVariant && { id: ev.chosenVariant.id, title: ev.chosenVariant.title, price: ev.chosenVariant.price / 100 },
@@ -54,4 +54,13 @@ export async function analyse(ev, { explainWithLLM = false, log = () => {} } = {
     screenshot: ev.screenshot,
     raw: { requestCount: ev.requests.length, console: ev.console, pageErrors: ev.pageErrors },
   };
+}
+
+// Store's home market (from its currency) vs where the audit ran. A mismatch means tags that
+// load only for local visitors may be absent from this report.
+const HOME = { INR: 'IN', USD: 'US', GBP: 'GB', AED: 'AE', AUD: 'AU', CAD: 'CA', SGD: 'SG', JPY: 'JP' };
+function coverage(ev, events) {
+  const currency = ev.cartAfter?.currency || ev.cartBefore?.currency || events.find(e => e.currency)?.currency || null;
+  const from = ev.vantage?.country || null, home = HOME[currency] || null;
+  return { visitedFrom: from, storeCurrency: currency, outsideMarket: !!(from && home && from !== home), homeMarket: home };
 }

@@ -41,7 +41,19 @@ const INIT_SCRIPT = () => {
   } catch {}
 };
 
+// Where the audit runs from matters: some stores load extra tags only for local visitors
+// (on neemans.com a second GTM container with a second Meta pixel appears from India but
+// not from a US server). Recorded so the report can say what kind of visitor it simulated.
+async function vantage() {
+  try {
+    const res = await fetch('https://www.cloudflare.com/cdn-cgi/trace', { signal: AbortSignal.timeout(5000) });
+    const kv = Object.fromEntries((await res.text()).trim().split('\n').map(l => l.split('=')));
+    return { country: kv.loc || null };
+  } catch { return { country: null }; }
+}
+
 export async function runSession({ url, device = 'mobile', live = false, headed = false, channel = 'msedge', log = () => {} }) {
+  const from = await vantage();
   // 'chromium' = Playwright's own build (npx playwright install chromium); otherwise an installed Edge/Chrome.
   const browser = await chromium.launch({ channel: channel === 'chromium' ? undefined : channel, headless: !headed });
   const profile = device === 'desktop' ? { viewport: { width: 1366, height: 850 } } : devices['Pixel 7'];
@@ -49,7 +61,7 @@ export async function runSession({ url, device = 'mobile', live = false, headed 
   await context.addInitScript(INIT_SCRIPT);
 
   const ev = {
-    startedAt: new Date().toISOString(), device, live, url,
+    startedAt: new Date().toISOString(), device, live, url, vantage: from,
     steps: [], requests: [], console: [], pageErrors: [], failed: [],
   };
   let step = 'landing';

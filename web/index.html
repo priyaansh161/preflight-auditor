@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pre-Flight Auditor</title>
+<meta name="description" content="Check that a landing page's analytics and ad tags report correctly before you spend on ads.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%23c4320a'/><path d='M10 16.5l4 4 8-9' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--ink:#1d1d1b;--muted:#6b6a66;--line:#e4e2dc;--accent:#c4320a;--accent-ink:#fff;
+--ok:#067647;--ok-bg:#ecfdf3;--warn:#b54708;--warn-bg:#fffaeb;--bad:#b42318;--bad-bg:#fef3f2}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141413;--card:#1e1e1c;--ink:#ecebe7;--muted:#a3a29c;--line:#33322f;--accent:#fb8a5c;--accent-ink:#1d1d1b;
+--ok:#47cd89;--ok-bg:#11301f;--warn:#fdb022;--warn-bg:#352a10;--bad:#f97066;--bad-bg:#3a1714}}
+:root[data-theme="dark"]{--bg:#141413;--card:#1e1e1c;--ink:#ecebe7;--muted:#a3a29c;--line:#33322f;--accent:#fb8a5c;--accent-ink:#1d1d1b;
+--ok:#47cd89;--ok-bg:#11301f;--warn:#fdb022;--warn-bg:#352a10;--bad:#f97066;--bad-bg:#3a1714}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:40px 16px 64px}
+a{color:inherit}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
+h1{font-size:34px;line-height:1.15;margin:6px 0 10px;letter-spacing:-.01em}
+.lead{color:var(--muted);font-size:17px;margin:0 0 24px;max-width:640px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin:16px 0}
+label{font-weight:600;font-size:14px;display:block;margin-bottom:8px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+input[type=url]{flex:1 1 320px;min-width:0;font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+input[type=url]:focus{outline:2px solid var(--accent);outline-offset:1px}
+button{font:inherit;font-weight:600;border:none;border-radius:10px;padding:12px 20px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chip{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:500;font-size:13px;padding:6px 12px;border-radius:999px}
+.chip:hover{border-color:var(--accent)}
+.opts{display:flex;gap:16px;margin-top:14px;font-size:14px;color:var(--muted);flex-wrap:wrap}
+.opts label{display:inline-flex;gap:6px;align-items:center;font-weight:400;margin:0;color:var(--ink)}
+.hint{font-size:13px;color:var(--muted);margin:12px 0 0}
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:8px 0 0}
+.how div{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--card)}
+.how b{display:block;margin-bottom:4px}.how p{margin:0;color:var(--muted);font-size:14px}
+.n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:12px;font-weight:700;margin-right:6px}
+#progress[hidden],#result[hidden],#error[hidden]{display:none}
+.steps{list-style:none;padding:0;margin:12px 0 0}
+.steps li{display:flex;gap:10px;align-items:center;padding:7px 0;color:var(--muted);border-bottom:1px solid var(--line)}
+.steps li:last-child{border-bottom:none}
+.steps li .dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex:none}
+.steps li.now{color:var(--ink);font-weight:600}.steps li.now .dot{border-color:var(--accent);border-top-color:transparent;animation:spin .8s linear infinite}
+.steps li.done{color:var(--ink)}.steps li.done .dot{background:var(--ok);border-color:var(--ok)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.steps li.now .dot{animation:none}}
+.timer{font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px}
+.verdict{border-radius:12px;padding:14px 16px;margin-bottom:14px;border:2px solid}
+.verdict b{font-size:20px;display:block}
+.v-ready{border-color:var(--ok);background:var(--ok-bg)}.v-ready b{color:var(--ok)}
+.v-ready-caveats,.v-fix-first{border-color:var(--warn);background:var(--warn-bg)}.v-ready-caveats b,.v-fix-first b{color:var(--warn)}
+.v-not-ready{border-color:var(--bad);background:var(--bad-bg)}.v-not-ready b{color:var(--bad)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+iframe{width:100%;height:78vh;border:1px solid var(--line);border-radius:12px;background:#fff}
+#error{border-color:var(--bad);background:var(--bad-bg)}
+footer{color:var(--muted);font-size:14px;margin-top:28px;display:flex;gap:18px;flex-wrap:wrap}
+@media (max-width:640px){h1{font-size:27px}.how{grid-template-columns:1fr}iframe{height:70vh}}
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">Landing page pre-flight auditor</p>
+  <h1>Is this page ready for ad money?</h1>
+  <p class="lead">A robot shopper opens the page in a real browser, acts like someone arriving from an ad, and checks that Google Analytics, Meta and Google Ads are told the truth about what it did: once, at the right price, credited to the right ad.</p>
+
+  <div class="how">
+    <div><b><span class="n">1</span>It shops</b><p>Lands from a fake ad click, picks a size, adds to cart, starts checkout. Never buys.</p></div>
+    <div><b><span class="n">2</span>It listens</b><p>Records every message the page sends to the ad platforms, without letting them reach the real accounts.</p></div>
+    <div><b><span class="n">3</span>It compares</b><p>Checks those messages against what really happened and writes a plain-English report.</p></div>
+  </div>
+
+  <form class="card" id="form">
+    <label for="url">Page to check</label>
+    <div class="row">
+      <input type="url" id="url" required value="https://neemans.com/products/adaptis-sneakers-for-men-beige" placeholder="https://neemans.com/products/...">
+      <button id="go" type="submit">Run the check</button>
+    </div>
+    <div class="chips">
+      <button type="button" class="chip" data-url="https://neemans.com/products/adaptis-sneakers-for-men-beige">Product page: Adaptis Sneakers</button>
+      <button type="button" class="chip" data-url="https://neemans.com/collections/sneakers">Collection page: Sneakers</button>
+    </div>
+    <div class="opts">Visit as:
+      <label><input type="radio" name="device" value="mobile" checked> Phone</label>
+      <label><input type="radio" name="device" value="desktop"> Desktop</label>
+    </div>
+    <p class="hint">Takes about 2 minutes. This demo checks neemans.com pages only, and runs from a server in the US. Some Neeman's tags load only for visitors in India, so for the exact view an Indian ad visitor gets, run the <a href="https://github.com/priyaansh161/preflight-auditor#quick-start" target="_blank" rel="noopener">command-line version</a> from India.</p>
+  </form>
+
+  <section class="card" id="progress" hidden aria-live="polite">
+    <div class="row" style="justify-content:space-between;align-items:baseline">
+      <b id="progressTitle">Starting the robot…</b><span class="timer" id="timer">0:00</span>
+    </div>
+    <ul class="steps" id="steps">
+      <li data-k="queued"><span class="dot"></span>Waiting for a free machine</li>
+      <li data-k="setup"><span class="dot"></span>Setting up the browser</li>
+      <li data-k="audit"><span class="dot"></span>Shopping and recording (land → scroll → size → add to cart → checkout)</li>
+      <li data-k="report"><span class="dot"></span>Checking the messages and writing the report</li>
+    </ul>
+    <p class="hint">You can leave this tab open and come back; <a id="runLink" href="#" target="_blank" rel="noopener" hidden>watch it run on GitHub</a></p>
+  </section>
+
+  <section class="card" id="error" hidden><b>Something went wrong.</b><p id="errorText"></p></section>
+
+  <section id="result" hidden>
+    <div class="verdict" id="verdict"><b id="verdictLabel"></b><span id="verdictText"></span></div>
+    <div class="actions">
+      <button type="button" id="openFull">Open the full report</button>
+      <button type="button" class="ghost" id="again">Check another page</button>
+    </div>
+    <iframe id="frame" title="Audit report" sandbox="allow-same-origin allow-popups"></iframe>
+  </section>
+
+  <footer>
+    <a href="https://priyaansh161.github.io/preflight-auditor/reports/sample-product/report.html" target="_blank" rel="noopener">Sample report</a>
+    <a href="https://github.com/priyaansh161/preflight-auditor" target="_blank" rel="noopener">Source code</a>
+    <a href="https://github.com/priyaansh161/preflight-auditor/blob/main/NOTE.md" target="_blank" rel="noopener">How it works &amp; why</a>
+  </footer>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} } };
+let reportHtml = '', timerId = null, pollId = null, started = 0;
+
+document.querySelectorAll('.chip').forEach(c => c.onclick = () => { $('url').value = c.dataset.url; });
+
+$('form').onsubmit = async e => {
+  e.preventDefault();
+  showOnly('progress');
+  setStep('queued');
+  $('go').disabled = true;
+  try {
+    const device = document.querySelector('input[name=device]:checked').value;
+    const res = await fetch('/api/start', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ url: $('url').value.trim(), device }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not start the check.');
+    store.set('pf-run', JSON.stringify({ id: data.id, at: Date.now() }));
+    track(data.id, Date.now());
+  } catch (err) { fail(err.message); }
+};
+
+function track(id, at) {
+  started = at;
+  showOnly('progress');
+  $('go').disabled = true;
+  clearInterval(timerId);
+  timerId = setInterval(() => { const s = Math.floor((Date.now() - started) / 1000); $('timer').textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }, 1000);
+  poll(id);
+}
+
+async function poll(id) {
+  clearTimeout(pollId);
+  try {
+    const res = await fetch(`/api/status?id=${encodeURIComponent(id)}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Lost track of the check.');
+    if (data.runUrl) { $('runLink').href = data.runUrl; $('runLink').hidden = false; }
+    if (data.state === 'done') return done(data);
+    if (data.state === 'failed') throw new Error(data.error || 'The check failed.');
+    setStep(data.state === 'queued' ? 'queued' : /audit|auditor/i.test(data.step || '') ? 'audit' : /upload/i.test(data.step || '') ? 'report' : 'setup');
+    if (Date.now() - started > 12 * 60 * 1000) throw new Error('This is taking much longer than usual. Try again in a few minutes.');
+    pollId = setTimeout(() => poll(id), 5000);
+  } catch (err) { fail(err.message); }
+}
+
+function setStep(k) {
+  const order = ['queued', 'setup', 'audit', 'report'];
+  const i = order.indexOf(k);
+  document.querySelectorAll('#steps li').forEach((li, j) => { li.className = j < i ? 'done' : j === i ? 'now' : ''; });
+  $('progressTitle').textContent = { queued: 'Waiting for a machine…', setup: 'Getting the browser ready…', audit: 'The robot is shopping…', report: 'Writing the report…' }[k];
+}
+
+function done(data) {
+  clearInterval(timerId);
+  store.set('pf-run', null);
+  reportHtml = data.html;
+  const v = data.verdict || {};
+  $('verdict').className = `verdict v-${v.level || 'ready-caveats'}`;
+  $('verdictLabel').textContent = v.label || 'Report ready';
+  $('verdictText').textContent = v.summary || '';
+  $('frame').srcdoc = reportHtml;
+  showOnly('result');
+  $('go').disabled = false;
+}
+
+function fail(msg) {
+  clearInterval(timerId);
+  store.set('pf-run', null);
+  $('errorText').textContent = msg;
+  showOnly('error', true);
+  $('go').disabled = false;
+}
+
+function showOnly(which, keepForm) {
+  for (const id of ['progress', 'result', 'error']) $(id).hidden = id !== which;
+  $('form').hidden = which === 'progress' || which === 'result' ? false : false;
+  if (!keepForm && which !== 'error') $(which).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+$('openFull').onclick = () => { const w = window.open(URL.createObjectURL(new Blob([reportHtml], { type: 'text/html' })), '_blank'); if (!w) location.href = URL.createObjectURL(new Blob([reportHtml], { type: 'text/html' })); };
+$('again').onclick = () => { showOnly(null); $('result').hidden = true; window.scrollTo({ top: 0, behavior: 'smooth' }); $('url').focus(); };
+
+// Resume a check that was running when the page was closed or refreshed.
+try {
+  const saved = JSON.parse(store.get('pf-run') || 'null');
+  if (saved && Date.now() - saved.at < 15 * 60 * 1000) track(saved.id, saved.at);
+} catch {}
+</script>
+</body>
+</html>

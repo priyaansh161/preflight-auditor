@@ -5,3 +5,4 @@ reports/*
 !reports/sample-product/
 !reports/sample-collection/
 .env
+.netlify/

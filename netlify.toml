@@ -1,0 +1,8 @@
+# Web front end: a static page (web/) plus two small functions that start an audit on
+# GitHub Actions and fetch its report. The browser work itself runs on GitHub, not Netlify.
+[build]
+  publish = "web"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
