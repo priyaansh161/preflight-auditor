@@ -2,7 +2,7 @@
 
 Before ad money goes behind a landing page, this tool opens the page in a **real browser**, behaves like a shopper arriving from an ad, and checks that every analytics and ad tag reports what actually happened: once, with the right price, and with the click credited to the right ad. It ends with a plain-English report and a verdict: *Ready*, *Ready with caveats*, *Fix tracking first*, or *Not ready*.
 
-- **Sample reports (Neeman's):** [`reports/sample-product/report.html`](reports/sample-product/report.html) · [`reports/sample-collection/report.html`](reports/sample-collection/report.html) (Markdown versions sit alongside them)
+- **Sample reports (Neeman's), open in a browser:** [product page audit](https://priyaansh161.github.io/preflight-auditor/reports/sample-product/report.html) · [collection page audit](https://priyaansh161.github.io/preflight-auditor/reports/sample-collection/report.html) (source files and Markdown versions are in [`reports/`](reports/))
 - **Approach, assumptions, trade-offs, and where the LLM fits:** [`NOTE.md`](NOTE.md)
 
 ## What it does
