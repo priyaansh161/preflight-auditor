@@ -5,6 +5,15 @@ import { unzipSync, strFromU8 } from 'fflate';
 import { gh, json, handle, HttpError, WORKFLOW } from '../lib/github.mjs';
 
 export default handle(async req => {
+  try { return await check(req); }
+  catch (e) {
+    // A temporary GitHub error while the run is in flight is not a failed audit.
+    if (e.status === 503) return json({ state: 'running', step: null, note: 'GitHub was briefly unavailable; retrying.' });
+    throw e;
+  }
+});
+
+async function check(req) {
   const id = new URL(req.url).searchParams.get('id') || '';
   if (!/^[a-z0-9-]{6,30}$/.test(id)) throw new HttpError(400, 'Bad id.');
 
@@ -16,12 +25,15 @@ export default handle(async req => {
 
   const arts = await (await gh(`/actions/runs/${run.id}/artifacts`)).json();
   const art = arts.artifacts.find(a => a.name === 'report');
-  if (!art) return json({ state: 'failed', runUrl: run.html_url, error: 'The run finished but produced no report.' });
+  // Artifacts can take a few seconds to appear after the run completes.
+  if (!art) return Date.now() - new Date(run.updated_at).getTime() < 60000
+    ? json({ state: 'running', step: 'Upload report', runUrl: run.html_url })
+    : json({ state: 'failed', runUrl: run.html_url, error: 'The run finished but produced no report.' });
   const zip = new Uint8Array(await (await gh(`/actions/artifacts/${art.id}/zip`)).arrayBuffer());
   const files = unzipSync(zip);
   const report = JSON.parse(strFromU8(files['report.json']));
   return json({ state: 'done', runUrl: run.html_url, html: strFromU8(files['report.html']), verdict: report.verdict });
-});
+}
 
 async function currentStep(runId) {
   try {

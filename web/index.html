@@ -123,7 +123,7 @@ footer{color:var(--muted);font-size:14px;margin-top:28px;display:flex;gap:18px;f
 <script>
 const $ = id => document.getElementById(id);
 const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} } };
-let reportHtml = '', timerId = null, pollId = null, started = 0;
+let reportHtml = '', timerId = null, pollId = null, started = 0, misses = 0;
 
 document.querySelectorAll('.chip').forEach(c => c.onclick = () => { $('url').value = c.dataset.url; });
 
@@ -144,6 +144,7 @@ $('form').onsubmit = async e => {
 
 function track(id, at) {
   started = at;
+  misses = 0;
   showOnly('progress');
   $('go').disabled = true;
   clearInterval(timerId);
@@ -154,9 +155,13 @@ function track(id, at) {
 async function poll(id) {
   clearTimeout(pollId);
   try {
-    const res = await fetch(`/api/status?id=${encodeURIComponent(id)}`);
-    const data = await res.json();
+    let res, data;
+    try { res = await fetch(`/api/status?id=${encodeURIComponent(id)}`); data = await res.json(); }
+    catch { res = { ok: false, status: 0 }; data = {}; }
+    // Network or server hiccups: keep waiting; give up only after several in a row.
+    if (!res.ok && (res.status === 0 || res.status >= 500) && ++misses < 6) { pollId = setTimeout(() => poll(id), 6000); return; }
     if (!res.ok) throw new Error(data.error || 'Lost track of the check.');
+    misses = 0;
     if (data.runUrl) { $('runLink').href = data.runUrl; $('runLink').hidden = false; }
     if (data.state === 'done') return done(data);
     if (data.state === 'failed') throw new Error(data.error || 'The check failed.');

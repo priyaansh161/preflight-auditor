@@ -14,7 +14,8 @@ export async function gh(path, init = {}) {
     ...init,
     headers: { authorization: `Bearer ${token}`, accept: 'application/vnd.github+json', 'x-github-api-version': '2022-11-28', ...init.headers },
   });
-  if (!res.ok && res.status !== 302) throw new HttpError(502, `GitHub returned ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  // GitHub has brief 5xx / rate-limit blips; mark them retryable so the page keeps waiting.
+  if (!res.ok && res.status !== 302) throw new HttpError(res.status >= 500 || res.status === 429 ? 503 : 502, `GitHub returned ${res.status}: ${(await res.text()).slice(0, 200)}`);
   return res;
 }
 
