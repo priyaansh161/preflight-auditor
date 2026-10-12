@@ -1,0 +1,7 @@
+node_modules/
+scratch/
+INTERVIEW-PREP.md
+reports/*
+!reports/sample-product/
+!reports/sample-collection/
+.env

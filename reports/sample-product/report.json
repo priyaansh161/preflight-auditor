@@ -1,0 +1,2166 @@
+{
+  "meta": {
+    "url": "https://neemans.com/products/adaptis-sneakers-for-men-beige",
+    "device": "mobile",
+    "live": false,
+    "startedAt": "2026-10-12T10:43:19.776Z",
+    "finishedAt": "2026-10-12T10:44:23.644Z",
+    "auditor": "preflight-auditor 1.0"
+  },
+  "verdict": {
+    "level": "fix-first",
+    "label": "Works for shoppers, but tracking needs fixes",
+    "summary": "The page sells, but 2 high-severity tracking issues mean ad platforms would get wrong numbers. Fix (or confirm) these before scaling spend."
+  },
+  "findings": [
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Marketing / ads team",
+      "id": "meta-multi-add_to_cart",
+      "category": "Double counting",
+      "severity": "high",
+      "title": "Two Meta pixels both report \"AddToCart\"",
+      "finding": "Each time the shopper added to cart, the event is sent to 2 pixels: 223335195137418 (via tmgoogletagmanager) and 558552204508330 (via shopify_web_pixel).",
+      "impact": "If both pixels sit in the same ad account or dataset, Meta counts each conversion twice and reported ROAS is overstated. If they belong to separate accounts (e.g. an agency), this is intentional.",
+      "action": "Confirm in Meta Events Manager which pixel your campaigns optimise on; retire the other or remove it from this site."
+    },
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Marketing / ads team",
+      "id": "meta-multi-begin_checkout",
+      "category": "Double counting",
+      "severity": "high",
+      "title": "Two Meta pixels both report \"InitiateCheckout\"",
+      "finding": "Each time the shopper started checkout, the event is sent to 2 pixels: 558552204508330 (via shopify_web_pixel) and 223335195137418 (via tmgoogletagmanager).",
+      "impact": "If both pixels sit in the same ad account or dataset, Meta counts each conversion twice and reported ROAS is overstated. If they belong to separate accounts (e.g. an agency), this is intentional.",
+      "action": "Confirm in Meta Events Manager which pixel your campaigns optimise on; retire the other or remove it from this site."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [
+        "Failed to fetch",
+        "m.processData is not a function"
+      ],
+      "owner": "Developer",
+      "id": "js-errors",
+      "category": "Page & shopper experience",
+      "severity": "medium",
+      "title": "2 uncaught JavaScript errors on the page",
+      "finding": "Script errors were thrown: 1 during \"Scrolling through the page\", 1 during \"Starting checkout (no order placed)\".",
+      "impact": "A crashing script can stop a tag (or a button) from working for some shoppers. None broke the tested journey, but they make the page fragile.",
+      "action": "Have a developer trace each error to its script and fix or remove it."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "cls",
+      "category": "Page & shopper experience",
+      "severity": "medium",
+      "title": "Page jumps around while loading (CLS 0.177)",
+      "finding": "Cumulative Layout Shift: 0.177 (good ≤ 0.1). Measured once on an emulated phone over a fast connection — real shoppers on 4G will see it slower.",
+      "impact": "Content that moves under a thumb causes mis-taps and frustration on mobile.",
+      "action": "Reserve space for banners, images and widgets that load late."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [
+        "Choosing an in-stock size: Meta Pixel 223335195137418 PageView",
+        "Choosing an in-stock size: Meta Pixel 558552204508330 PageView",
+        "Choosing an in-stock size: Google Analytics 4 G-3042L5GP9T page_view",
+        "Choosing an in-stock size: Google Ads AW-766814719 page_view",
+        "Choosing an in-stock size: Google Analytics 4 G-5RYZDGXEFH page_view",
+        "Choosing an in-stock size: Google Analytics 4 G-VDE0ZFZ4LP page_view"
+      ],
+      "owner": "Analytics",
+      "id": "virtual-pv",
+      "category": "Double counting",
+      "severity": "medium",
+      "title": "Extra page views counted with no new page (choosing an in-stock size)",
+      "finding": "No new page loaded, but 6 page-view hits went out (Meta Pixel 223335195137418, Meta Pixel 558552204508330, Google Analytics 4 G-3042L5GP9T, Google Ads AW-766814719, Google Analytics 4 G-5RYZDGXEFH, Google Analytics 4 G-VDE0ZFZ4LP). The theme rewrites the address bar (history change) when a size is picked, and the tags treat that as a new page.",
+      "impact": "Page views and sessions are inflated and engagement rate / bounce rate are distorted. Meta also receives extra PageView signals.",
+      "action": "In GA4 turn off \"page changes based on browser history events\" (or exclude this theme's replaceState), and remove History Change triggers from page-view tags in GTM."
+    },
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Analytics",
+      "id": "ga4-multi",
+      "category": "Double counting",
+      "severity": "medium",
+      "title": "2 Google Analytics properties track this page",
+      "finding": "Page views go to G-3042L5GP9T, G-VDE0ZFZ4LP. Ecommerce events go to: G-3042L5GP9T.",
+      "impact": "Teams reading different properties will see different numbers; any property linked to Google Ads must have complete ecommerce data.",
+      "action": "Document which property is the source of truth and which is linked to Google Ads; remove stale ones."
+    },
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Marketing / ads team",
+      "id": "gads-multi-view_item",
+      "category": "Double counting",
+      "severity": "medium",
+      "title": "3 Google Ads conversion actions fire when the shopper viewed the product",
+      "finding": "One shopper action triggered: AW-766814719 u-vGCKSF3_YbEP_T0u0C; AW-766814719 CXh7CI2gxvoaEP_T0u0C; AW-766814719 Lej_CISgxvoaEP_T0u0C.",
+      "impact": "If more than one is set as a \"Primary\" conversion, Google Ads counts this action several times and bids on inflated numbers.",
+      "action": "In Google Ads → Goals → Conversions, keep exactly one of these as Primary for this action; mark the rest Secondary or remove them."
+    },
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Marketing / ads team",
+      "id": "gads-multi-add_to_cart",
+      "category": "Double counting",
+      "severity": "medium",
+      "title": "3 Google Ads conversion actions fire when the shopper added to cart",
+      "finding": "One shopper action triggered: AW-766814719 lwnICJ6F3_YbEP_T0u0C; AW-766814719 q-ZgCJzr64UYEP_T0u0C; AW-766814719 zbObCJD0uPoaEP_T0u0C.",
+      "impact": "If more than one is set as a \"Primary\" conversion, Google Ads counts this action several times and bids on inflated numbers.",
+      "action": "In Google Ads → Goals → Conversions, keep exactly one of these as Primary for this action; mark the rest Secondary or remove them."
+    },
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Marketing / ads team",
+      "id": "gads-zero",
+      "category": "Data accuracy",
+      "severity": "medium",
+      "title": "3 Google Ads conversion tags report a value of ₹0",
+      "finding": "Older GTM conversion tags fire on shopper actions with value 0: Adding the item to the cart → label q-ZgCJzr64UYEP_T0u0C; Adding the item to the cart → label zbObCJD0uPoaEP_T0u0C; Starting checkout (no order placed) → label ubtwCIegxvoaEP_T0u0C.",
+      "impact": "If any of these are used in Max Conversion Value / Target ROAS bidding, Google learns that these conversions are worth nothing.",
+      "action": "Pass the cart value into these tags, or confirm they are Secondary (observation-only) conversions."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [
+        "[scroll] [Meta Pixel] - Invalid parameter format for currency. Please refer https://developers.facebook.com/docs/meta-pixel/reference/ for valid parameter specifications."
+      ],
+      "owner": "Developer",
+      "id": "meta-warnings",
+      "category": "Data accuracy",
+      "severity": "medium",
+      "title": "Meta Pixel reports its own errors in the browser",
+      "finding": "[Meta Pixel] - Invalid parameter format for currency.",
+      "impact": "Meta rejects or ignores the malformed parameter, so the affected event loses value or matching data.",
+      "action": "Find the custom event sending the bad parameter (Meta Pixel Helper shows it) and fix its format."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Marketing / ads team",
+      "id": "third-party",
+      "category": "Page & shopper experience",
+      "severity": "low",
+      "title": "85 outside domains load on this page (28+ separate vendors)",
+      "finding": "456 requests went to 85 outside domains; 28 vendors could be named, the rest are unidentified (full list in the appendix).",
+      "impact": "Each vendor adds load time and another script that can break. Old, unused vendors are common in this list.",
+      "action": "Review the vendor list with marketing and remove anything no one is using."
+    },
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "funnel-gads-begin_checkout",
+      "category": "Tags present & firing",
+      "severity": "low",
+      "title": "Google Ads: no \"begin_checkout\" event when the shopper started checkout",
+      "finding": "The shopper started checkout, but Google Ads never received \"begin_checkout\". A classic conversion tag did fire at this step (label ubtwCIegxvoaEP_T0u0C).",
+      "impact": "Probably covered by the classic conversion tag; only matters if remarketing audiences rely on the standard event.",
+      "action": "Add or fix the \"begin_checkout\" tag/trigger for this step."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Analytics",
+      "id": "synonyms",
+      "category": "Double counting",
+      "severity": "low",
+      "title": "Same action tracked under two event names in GA4",
+      "finding": "Alongside the standard events, GA4 also receives: ADD-TO-CART-GA4-V2 (≈ add_to_cart).",
+      "impact": "Harmless on its own, but if someone marks the custom one as a key event or imports it into Google Ads, the action is counted twice.",
+      "action": "Retire the legacy custom events, or make sure only the standard event is a key event."
+    },
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Marketing / ads team",
+      "id": "consent",
+      "category": "Privacy & consent",
+      "severity": "low",
+      "title": "All tracking is switched on before the visitor agrees to anything",
+      "finding": "Consent Mode default is \"granted\" for ad_storage, ad_user_data, ad_personalization, analytics_storage, and no consent banner changed it.",
+      "impact": "Good for measurement: nothing is held back. The risk is regulatory: India's DPDP Act requires consent for processing personal data, with its rules being phased in. A legal call, not a launch blocker.",
+      "action": "Confirm the policy with legal; if a banner is added later, re-run this audit to make sure tags still fire after \"Accept\"."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "page-loads",
+      "category": "Page & shopper experience",
+      "severity": "pass",
+      "title": "Page loads (HTTP 200) at the address the ad points to"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "stock",
+      "category": "Page & shopper experience",
+      "severity": "pass",
+      "title": "In stock (6 of 6 sizes available)"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "atc-works",
+      "category": "Page & shopper experience",
+      "severity": "pass",
+      "title": "Add to cart works (size UK 6 landed in the cart)"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "lcp",
+      "category": "Page & shopper experience",
+      "severity": "pass",
+      "title": "Main content appears quickly (LCP 1.2s)",
+      "finding": "Largest Contentful Paint: 1.17s (good ≤ 2.5s). Measured once on an emulated phone over a fast connection — real shoppers on 4G will see it slower.",
+      "impact": "Slow pages lose paid visitors before they see the product, and Google Ads gives slow pages a worse landing-page score.",
+      "action": "Compress the hero image, defer non-essential third-party scripts."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "tag-scripts",
+      "category": "Page & shopper experience",
+      "severity": "pass",
+      "title": "All scripts loaded successfully"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "present-ga4",
+      "category": "Tags present & firing",
+      "severity": "pass",
+      "title": "Google Analytics 4 is installed and firing (G-3042L5GP9T, G-VDE0ZFZ4LP)"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "present-meta",
+      "category": "Tags present & firing",
+      "severity": "pass",
+      "title": "Meta Pixel is installed and firing (558552204508330, 223335195137418)"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "present-gads",
+      "category": "Tags present & firing",
+      "severity": "pass",
+      "title": "Google Ads is installed and firing (AW-766814719, AW-876772125)"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "phantom",
+      "category": "Tags present & firing",
+      "severity": "pass",
+      "title": "No false \"add to cart\" when the shopper forgets to pick a size"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "dupes",
+      "category": "Double counting",
+      "severity": "pass",
+      "title": "No event fired twice to the same account for one action"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "values",
+      "category": "Data accuracy",
+      "severity": "pass",
+      "title": "Prices and currency match the store on every platform (₹4,499 INR)"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "ids",
+      "category": "Data accuracy",
+      "severity": "pass",
+      "title": "Product IDs in tags match the Shopify catalogue"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "meta-eid",
+      "category": "Data accuracy",
+      "severity": "pass",
+      "title": "Meta conversion events carry an event ID (safe to combine with server-side tracking)"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "params",
+      "category": "Attribution (who gets credit)",
+      "severity": "pass",
+      "title": "UTM and click-ID parameters survive the landing"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "gclid",
+      "category": "Attribution (who gets credit)",
+      "severity": "pass",
+      "title": "Google Ads click ID (gclid) is stored for later conversions"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "fbclid",
+      "category": "Attribution (who gets credit)",
+      "severity": "pass",
+      "title": "Meta click ID (fbclid) is stored for later conversions"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "ga4-utm",
+      "category": "Attribution (who gets credit)",
+      "severity": "pass",
+      "title": "GA4 receives the campaign (UTM) parameters"
+    }
+  ],
+  "ai": null,
+  "page": {
+    "title": "Adaptis Sneakers For Men : Beige",
+    "canonical": "https://neemans.com/products/adaptis-sneakers-for-men-beige",
+    "robots": null,
+    "shopify": true,
+    "theme": "Development - Live + CTA only when slot live (1...",
+    "productHandle": "adaptis-sneakers-for-men-beige",
+    "nav": {
+      "ttfb": 102.40000000596046,
+      "domContentLoaded": 1851.199999988079,
+      "load": 3162.9000000059605
+    }
+  },
+  "product": {
+    "id": 15400021327915,
+    "title": "Adaptis Sneakers For Men : Beige",
+    "price": 4499,
+    "variants": 6
+  },
+  "chosenVariant": {
+    "id": 67642599178283,
+    "title": "UK 6",
+    "price": 4499
+  },
+  "steps": [
+    {
+      "name": "landing",
+      "label": "Landing from a simulated ad click",
+      "startedAt": 1791801800240,
+      "ok": true,
+      "notes": [],
+      "endedAt": 1791801814628
+    },
+    {
+      "name": "scroll",
+      "label": "Scrolling through the page",
+      "startedAt": 1791801814628,
+      "ok": true,
+      "notes": [],
+      "endedAt": 1791801824182
+    },
+    {
+      "name": "atc_no_size",
+      "label": "Tapping \"Add to cart\" before choosing a size",
+      "startedAt": 1791801824378,
+      "ok": true,
+      "notes": [],
+      "endedAt": 1791801830091
+    },
+    {
+      "name": "select_variant",
+      "label": "Choosing an in-stock size",
+      "startedAt": 1791801830091,
+      "ok": true,
+      "notes": [],
+      "endedAt": 1791801840377
+    },
+    {
+      "name": "add_to_cart",
+      "label": "Adding the item to the cart",
+      "startedAt": 1791801840377,
+      "ok": true,
+      "notes": [],
+      "endedAt": 1791801851415
+    },
+    {
+      "name": "begin_checkout",
+      "label": "Starting checkout (no order placed)",
+      "startedAt": 1791801851415,
+      "ok": true,
+      "notes": [],
+      "endedAt": 1791801863623
+    }
+  ],
+  "vitals": {
+    "lcp": 1168,
+    "cls": 0.177
+  },
+  "landing": {
+    "requestedUrl": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+    "finalUrl": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+    "status": 200,
+    "redirects": []
+  },
+  "realLoadSteps": [
+    "landing",
+    "begin_checkout"
+  ],
+  "pageType": "product",
+  "productStep": "landing",
+  "productUrl": null,
+  "installed": {
+    "gtm": [
+      "GTM-MBDRX7M",
+      "GTM-578LLRZ"
+    ],
+    "ga4": [
+      "G-3042L5GP9T",
+      "G-5RYZDGXEFH",
+      "G-VDE0ZFZ4LP"
+    ],
+    "gads": [
+      "AW-766814719",
+      "AW-876772125"
+    ],
+    "meta": [
+      "558552204508330",
+      "223335195137418"
+    ]
+  },
+  "inventory": [
+    {
+      "host": "cdn.shopify.com",
+      "vendor": "Shopify",
+      "requests": 39,
+      "failed": 0
+    },
+    {
+      "host": "www.facebook.com",
+      "vendor": "Meta (Facebook/Instagram)",
+      "requests": 33,
+      "failed": 0
+    },
+    {
+      "host": "gkx.gokwik.co",
+      "vendor": "GoKwik (checkout)",
+      "requests": 31,
+      "failed": 0
+    },
+    {
+      "host": "pdp.gokwik.co",
+      "vendor": "GoKwik (checkout)",
+      "requests": 26,
+      "failed": 0
+    },
+    {
+      "host": "tr.snapchat.com",
+      "vendor": "Snapchat",
+      "requests": 24,
+      "failed": 0
+    },
+    {
+      "host": "otlp-http-production.shopifysvc.com",
+      "vendor": "Shopify",
+      "requests": 21,
+      "failed": 0
+    },
+    {
+      "host": "www.googleadservices.com",
+      "vendor": "Google Ads",
+      "requests": 16,
+      "failed": 0
+    },
+    {
+      "host": "www.google.com",
+      "vendor": null,
+      "requests": 16,
+      "failed": 0
+    },
+    {
+      "host": "wsdk-files.webengage.com",
+      "vendor": "WebEngage",
+      "requests": 15,
+      "failed": 0
+    },
+    {
+      "host": "z.clarity.ms",
+      "vendor": "Microsoft Clarity",
+      "requests": 13,
+      "failed": 0
+    },
+    {
+      "host": "xd-f1cf3d4fdb19408ea770fc6f80817dcb.ecs.us-east-1.on.aws",
+      "vendor": null,
+      "requests": 12,
+      "failed": 0
+    },
+    {
+      "host": "www.googletagmanager.com",
+      "vendor": "Google Tag Manager",
+      "requests": 11,
+      "failed": 0
+    },
+    {
+      "host": "analytics.google.com",
+      "vendor": "Google Analytics 4",
+      "requests": 11,
+      "failed": 0
+    },
+    {
+      "host": "c.webengage.com",
+      "vendor": "WebEngage",
+      "requests": 10,
+      "failed": 0
+    },
+    {
+      "host": "fonts.gstatic.com",
+      "vendor": "Web fonts",
+      "requests": 9,
+      "failed": 0
+    },
+    {
+      "host": "lumberjack.razorpay.com",
+      "vendor": "Razorpay",
+      "requests": 8,
+      "failed": 0
+    },
+    {
+      "host": "t.makehook.ws",
+      "vendor": "Makehook",
+      "requests": 8,
+      "failed": 0
+    },
+    {
+      "host": "k6-e4e4123be8e54363900a90353991ca93.ecs.us-west-1.on.aws",
+      "vendor": null,
+      "requests": 8,
+      "failed": 0
+    },
+    {
+      "host": "googleads.g.doubleclick.net",
+      "vendor": "Google Ads",
+      "requests": 7,
+      "failed": 0
+    },
+    {
+      "host": "api.useunloq.com",
+      "vendor": "Unloq",
+      "requests": 7,
+      "failed": 0
+    },
+    {
+      "host": "partner.inmobi.com",
+      "vendor": "InMobi",
+      "requests": 7,
+      "failed": 0
+    },
+    {
+      "host": "trc-events.taboola.com",
+      "vendor": "Taboola",
+      "requests": 6,
+      "failed": 0
+    },
+    {
+      "host": "sc-static.net",
+      "vendor": "Snapchat",
+      "requests": 5,
+      "failed": 0
+    },
+    {
+      "host": "assets.snapmint.com",
+      "vendor": "Snapmint (EMI)",
+      "requests": 5,
+      "failed": 0
+    },
+    {
+      "host": "partner.inmobiapis.com",
+      "vendor": "InMobi",
+      "requests": 5,
+      "failed": 0
+    },
+    {
+      "host": "www.google-analytics.com",
+      "vendor": "Google Analytics 4",
+      "requests": 5,
+      "failed": 0
+    },
+    {
+      "host": "fonts.googleapis.com",
+      "vendor": "Web fonts",
+      "requests": 4,
+      "failed": 0
+    },
+    {
+      "host": "cdn.taboola.com",
+      "vendor": "Taboola",
+      "requests": 4,
+      "failed": 0
+    },
+    {
+      "host": "connect.facebook.net",
+      "vendor": "Meta (Facebook/Instagram)",
+      "requests": 3,
+      "failed": 0
+    },
+    {
+      "host": "pixel.tapad.com",
+      "vendor": null,
+      "requests": 3,
+      "failed": 0
+    },
+    {
+      "host": "sdk.useunloq.com",
+      "vendor": "Unloq",
+      "requests": 3,
+      "failed": 0
+    },
+    {
+      "host": "www.clarity.ms",
+      "vendor": "Microsoft Clarity",
+      "requests": 3,
+      "failed": 0
+    },
+    {
+      "host": "static-cdn.trackier.com",
+      "vendor": "Trackier",
+      "requests": 3,
+      "failed": 0
+    },
+    {
+      "host": "rtb.dspcdn.org",
+      "vendor": "DSP (ad network)",
+      "requests": 3,
+      "failed": 0
+    },
+    {
+      "host": "ssl.widgets.webengage.com",
+      "vendor": "WebEngage",
+      "requests": 3,
+      "failed": 0
+    },
+    {
+      "host": "trc.taboola.com",
+      "vendor": "Taboola",
+      "requests": 3,
+      "failed": 0
+    },
+    {
+      "host": "bzr.openai.com",
+      "vendor": "OpenAI",
+      "requests": 3,
+      "failed": 0
+    },
+    {
+      "host": "otel-public.gokwik.co",
+      "vendor": "GoKwik (checkout)",
+      "requests": 3,
+      "failed": 0
+    },
+    {
+      "host": "cdn-4.convertexperiments.com",
+      "vendor": "Convert (A/B testing)",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "cdn.nector.io",
+      "vendor": "Nector (loyalty)",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "www.merchant-center-analytics.goog",
+      "vendor": "Google Merchant Center",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "sslwidget.criteo.com",
+      "vendor": "Criteo",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "www.gstatic.com",
+      "vendor": null,
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "translate.googleapis.com",
+      "vendor": "Google Translate",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "bzrcdn.openai.com",
+      "vendor": "OpenAI",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "xpdgremote.com",
+      "vendor": null,
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "c.clarity.ms",
+      "vendor": "Microsoft Clarity",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "cm.g.doubleclick.net",
+      "vendor": null,
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "tracking.aws.judge.me",
+      "vendor": "Judge.me (reviews)",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "api-gw.gokwik.io",
+      "vendor": null,
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "api.gokwik.co",
+      "vendor": "GoKwik (checkout)",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "use.typekit.net",
+      "vendor": "Web fonts",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "magic-plugins.razorpay.com",
+      "vendor": "Razorpay",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "checkout-merchant.snapmint.com",
+      "vendor": "Snapmint (EMI)",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "api.razorpay.com",
+      "vendor": "Razorpay",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "shop.app",
+      "vendor": "Shopify",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "gum.criteo.com",
+      "vendor": "Criteo",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "www.google.co.in",
+      "vendor": null,
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "stats.g.doubleclick.net",
+      "vendor": null,
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "ad.doubleclick.net",
+      "vendor": "Google Ads",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "tr6.snapchat.com",
+      "vendor": "Snapchat",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "sdk.gokwik.co",
+      "vendor": "GoKwik (checkout)",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "logisy.s3.amazonaws.com",
+      "vendor": "Logisy",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "svc.nitrocommerce.ai",
+      "vendor": "NitroCommerce",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "capi-automation.s3.us-east-2.amazonaws.com",
+      "vendor": null,
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "x.nitrocommerce.ai",
+      "vendor": "NitroCommerce",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "translate.google.com",
+      "vendor": "Google Translate",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "static.hotjar.com",
+      "vendor": "Hotjar",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "translate-pa.googleapis.com",
+      "vendor": null,
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "i.l-dsp.inmobicdn.net",
+      "vendor": "InMobi",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "cachefront.nector.io",
+      "vendor": "Nector (loyalty)",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "logisy.tech",
+      "vendor": "Logisy",
+      "requests": 1,
+      "failed": 1
+    },
+    {
+      "host": "scripts.clarity.ms",
+      "vendor": "Microsoft Clarity",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "script.hotjar.com",
+      "vendor": "Hotjar",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "advertiser.inmobiapis.com",
+      "vendor": "InMobi",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "c.bing.com",
+      "vendor": null,
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "fxui.useunloq.com",
+      "vendor": "Unloq",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "urlbird.nitrocommerce.ai",
+      "vendor": "NitroCommerce",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "z10a5cb53d.webengage.co",
+      "vendor": "WebEngage",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "pips.taboola.com",
+      "vendor": "Taboola",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "cds.taboola.com",
+      "vendor": "Taboola",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "extensions.shopifycdn.com",
+      "vendor": null,
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "error-analytics-sessions-production.shopifysvc.com",
+      "vendor": "Shopify",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "cdn.gokwik.co",
+      "vendor": "GoKwik (checkout)",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "truesdk",
+      "vendor": null,
+      "requests": 1,
+      "failed": 0
+    }
+  ],
+  "events": [
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "page_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801802438,
+      "requestId": 220
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": null,
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": null,
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801802442,
+      "requestId": 221
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "view_item",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "shopify_IN_15400021327915_67642599178283",
+          "name": "Adaptis Sneakers For Men : Beige",
+          "price": 4499,
+          "variant": "UK 6",
+          "quantity": 1
+        }
+      ],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801802443,
+      "requestId": 222
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "page_view",
+      "label": "TDqLCKGF3_YbEP_T0u0C",
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": "sh-2fb5bd04-5867-4513-4113-7BC4943FE2E0",
+      "step": "landing",
+      "t": 1791801802562,
+      "requestId": 226
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "view_item",
+      "label": "u-vGCKSF3_YbEP_T0u0C",
+      "value": 4499,
+      "legacyTag": false,
+      "currency": "INR",
+      "eventId": "sh-2fb5bd9d-3DB6-4A5A-CC8A-2660D2B5F072",
+      "step": "landing",
+      "t": 1791801802563,
+      "requestId": 227
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "landing",
+      "t": 1791801802742,
+      "requestId": 240
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "landing",
+      "t": 1791801802743,
+      "requestId": 241
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "landing",
+      "t": 1791801802940,
+      "requestId": 247
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "landing",
+      "t": 1791801803144,
+      "requestId": 251
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "PageView",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "sh-2fb5bd04-5867-4513-4113-7BC4943FE2E0",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "step": "landing",
+      "t": 1791801804260,
+      "requestId": 296
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "ViewContent",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "15400021327915"
+        }
+      ],
+      "contentType": "product_group",
+      "eventId": "sh-2fb5bd9d-3DB6-4A5A-CC8A-2660D2B5F072",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "step": "landing",
+      "t": 1791801804297,
+      "requestId": 297
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "remarketing",
+      "label": null,
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": null,
+      "step": "landing",
+      "t": 1791801804814,
+      "requestId": 316
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "conversion",
+      "label": "CXh7CI2gxvoaEP_T0u0C",
+      "value": 0,
+      "legacyTag": true,
+      "currency": null,
+      "eventId": null,
+      "step": "landing",
+      "t": 1791801804817,
+      "requestId": 318
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "remarketing",
+      "label": null,
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": null,
+      "step": "landing",
+      "t": 1791801804817,
+      "requestId": 319
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "conversion",
+      "label": "Lej_CISgxvoaEP_T0u0C",
+      "value": 0,
+      "legacyTag": true,
+      "currency": null,
+      "eventId": null,
+      "step": "landing",
+      "t": 1791801804818,
+      "requestId": 321
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "223335195137418",
+      "event": "PageView",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "ob3_plugin-set_91f0048ea8904e5252e285d7fcd28bd62b951aedf986b33bab1fe1625e69ea89",
+      "source": "tmgoogletagmanager",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "step": "landing",
+      "t": 1791801804951,
+      "requestId": 337
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-VDE0ZFZ4LP",
+      "event": "page_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801805467,
+      "requestId": 362
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-876772125",
+      "event": "remarketing",
+      "label": null,
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": null,
+      "step": "landing",
+      "t": 1791801806250,
+      "requestId": 374
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "223335195137418",
+      "event": "kp_visitors",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "Gokwik-YHgNNuyalVHYlpk9DVzPQDlIkLtz",
+      "source": "tmgoogletagmanager",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "step": "landing",
+      "t": 1791801806346,
+      "requestId": 383
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "kp_visitors",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "Gokwik-YHgNNuyalVHYlpk9DVzPQDlIkLtz",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "step": "landing",
+      "t": 1791801806402,
+      "requestId": 394
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "landing",
+      "t": 1791801806566,
+      "requestId": 414
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "landing",
+      "t": 1791801806805,
+      "requestId": 425
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "landing",
+      "t": 1791801806972,
+      "requestId": 444
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "checkout_gokwik",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801809765,
+      "requestId": 507
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "loyalty_touchpoint_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801809765,
+      "requestId": 507
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "loyalty_touchpoint_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801809765,
+      "requestId": 507
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "landing",
+      "t": 1791801810771,
+      "requestId": 523
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "223335195137418",
+      "event": "kp_engaged_visitors",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "Gokwik-lxFn2HMCCwQ824CPazyvgDsOkTST",
+      "source": "tmgoogletagmanager",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "step": "scroll",
+      "t": 1791801816547,
+      "requestId": 621
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "kp_engaged_visitors",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "Gokwik-lxFn2HMCCwQ824CPazyvgDsOkTST",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "step": "scroll",
+      "t": 1791801816568,
+      "requestId": 624
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "scroll_depth",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "scroll",
+      "t": 1791801819712,
+      "requestId": 674
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "scroll_depth",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "scroll",
+      "t": 1791801819712,
+      "requestId": 674
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "scroll_depth",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "scroll",
+      "t": 1791801819712,
+      "requestId": 674
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "SubscribedButtonClick",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "ob3_plugin-set_22fabfb131cb71cfc8a5bfadc01522ce4600b6683bba514c952f75d5694201b2",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "step": "atc_no_size",
+      "t": 1791801824646,
+      "requestId": 680
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "atc_no_size",
+      "t": 1791801824647,
+      "requestId": 681
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "Neemans_Opti_Tracking",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "atc_no_size",
+      "t": 1791801829532,
+      "requestId": 684
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-5RYZDGXEFH",
+      "event": "form_start",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "select_variant",
+      "t": 1791801830242,
+      "requestId": 689
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-876772125",
+      "event": "form_start",
+      "label": null,
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": null,
+      "step": "select_variant",
+      "t": 1791801830243,
+      "requestId": 690
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "223335195137418",
+      "event": "PageView",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "ob3_plugin-set_e2ccba5275d7375337d0bee45ba5f3c0b44cbfe04712476b22905cef452e1618",
+      "source": "tmgoogletagmanager",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "step": "select_variant",
+      "t": 1791801831455,
+      "requestId": 698
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "PageView",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "ob3_plugin-set_fde0bd623a21656d19b7be9ab0df4f1244b68e6f14a438370e9ec3fbda4ec6f0",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "step": "select_variant",
+      "t": 1791801831498,
+      "requestId": 701
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "select_variant",
+      "t": 1791801831595,
+      "requestId": 703
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "loyalty_touchpoint_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "select_variant",
+      "t": 1791801832476,
+      "requestId": 710
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "page_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "select_variant",
+      "t": 1791801832477,
+      "requestId": 711
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "page_view",
+      "label": null,
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": null,
+      "step": "select_variant",
+      "t": 1791801832478,
+      "requestId": 712
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-VDE0ZFZ4LP",
+      "event": "form_start",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "select_variant",
+      "t": 1791801832478,
+      "requestId": 714
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-5RYZDGXEFH",
+      "event": "page_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "select_variant",
+      "t": 1791801837433,
+      "requestId": 720
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-VDE0ZFZ4LP",
+      "event": "page_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "select_variant",
+      "t": 1791801837463,
+      "requestId": 721
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-876772125",
+      "event": "form_submit",
+      "label": null,
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": null,
+      "step": "add_to_cart",
+      "t": 1791801840652,
+      "requestId": 725
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "SubscribedButtonClick",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "ob3_plugin-set_4687f4735cd458203130c82b513eebe1869994de67bea656dba8e45a01382eee",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "step": "add_to_cart",
+      "t": 1791801840673,
+      "requestId": 727
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "add_to_cart",
+      "t": 1791801840689,
+      "requestId": 728
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "Neemans_Opti_Tracking",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "add_to_cart",
+      "t": 1791801841706,
+      "requestId": 738
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "inp_slow_interaction",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "add_to_cart",
+      "t": 1791801841706,
+      "requestId": 738
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "inp_slow_interaction",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "add_to_cart",
+      "t": 1791801841706,
+      "requestId": 738
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "inp_slow_interaction",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "add_to_cart",
+      "t": 1791801841706,
+      "requestId": 738
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "add_to_cart",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "shopify_IN_15400021327915_67642599178283",
+          "name": "Adaptis Sneakers For Men : Beige",
+          "price": 4499,
+          "variant": "UK 6",
+          "quantity": 1
+        }
+      ],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "add_to_cart",
+      "t": 1791801841706,
+      "requestId": 739
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "add_to_cart",
+      "label": "lwnICJ6F3_YbEP_T0u0C",
+      "value": 4499,
+      "legacyTag": false,
+      "currency": "INR",
+      "eventId": "sh-2fb6f8f8-10F4-4929-BE11-DAE67FCD8C6B",
+      "step": "add_to_cart",
+      "t": 1791801841707,
+      "requestId": 740
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "conversion",
+      "label": "q-ZgCJzr64UYEP_T0u0C",
+      "value": 0,
+      "legacyTag": true,
+      "currency": null,
+      "eventId": null,
+      "step": "add_to_cart",
+      "t": 1791801841710,
+      "requestId": 743
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "conversion",
+      "label": "zbObCJD0uPoaEP_T0u0C",
+      "value": 0,
+      "legacyTag": true,
+      "currency": null,
+      "eventId": null,
+      "step": "add_to_cart",
+      "t": 1791801841710,
+      "requestId": 744
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "remarketing",
+      "label": null,
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": null,
+      "step": "add_to_cart",
+      "t": 1791801841711,
+      "requestId": 745
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "223335195137418",
+      "event": "AddToCart",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "15400021327915"
+        }
+      ],
+      "contentType": "product_group",
+      "eventId": "sh-2fb6f8f8-10F4-4929-BE11-DAE67FCD8C6B",
+      "source": "tmgoogletagmanager",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "step": "add_to_cart",
+      "t": 1791801841772,
+      "requestId": 751
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "AddToCart",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "15400021327915"
+        }
+      ],
+      "contentType": "product_group",
+      "eventId": "sh-2fb6f8f8-10F4-4929-BE11-DAE67FCD8C6B",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "step": "add_to_cart",
+      "t": 1791801841805,
+      "requestId": 753
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "add_to_cart",
+      "t": 1791801841944,
+      "requestId": 767
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "add_to_cart",
+      "t": 1791801841946,
+      "requestId": 768
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "223335195137418",
+      "event": "kp_atc",
+      "value": 4499,
+      "currency": "INR",
+      "items": [],
+      "contentType": "product",
+      "eventId": "Gokwik-LHso0jHonkaSGDM73J6lMtFQeutz",
+      "source": "tmgoogletagmanager",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "step": "add_to_cart",
+      "t": 1791801843258,
+      "requestId": 792
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "kp_atc",
+      "value": 4499,
+      "currency": "INR",
+      "items": [],
+      "contentType": "product",
+      "eventId": "Gokwik-LHso0jHonkaSGDM73J6lMtFQeutz",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "step": "add_to_cart",
+      "t": 1791801843280,
+      "requestId": 795
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "223335195137418",
+      "event": "kp_atc",
+      "value": 4499,
+      "currency": "INR",
+      "items": [],
+      "contentType": "product",
+      "eventId": "Gokwik-S6S3CUXy72JfCe9zRFQR9CwUrtY7",
+      "source": "tmgoogletagmanager",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "step": "add_to_cart",
+      "t": 1791801843346,
+      "requestId": 798
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "kp_atc",
+      "value": 4499,
+      "currency": "INR",
+      "items": [],
+      "contentType": "product",
+      "eventId": "Gokwik-S6S3CUXy72JfCe9zRFQR9CwUrtY7",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "step": "add_to_cart",
+      "t": 1791801843361,
+      "requestId": 801
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "ADD-TO-CART-GA4-V2",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "add_to_cart",
+      "t": 1791801846682,
+      "requestId": 807
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "SubscribedButtonClick",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "ob3_plugin-set_4743abef52716ee8b07b9447e8dbf94e2a25342589e5e9392e06afd939cefd95",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "step": "begin_checkout",
+      "t": 1791801851639,
+      "requestId": 817
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "begin_checkout",
+      "t": 1791801851718,
+      "requestId": 821
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "conversion",
+      "label": "ubtwCIegxvoaEP_T0u0C",
+      "value": 0,
+      "legacyTag": true,
+      "currency": null,
+      "eventId": null,
+      "step": "begin_checkout",
+      "t": 1791801852945,
+      "requestId": 852
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "begin_checkout",
+      "t": 1791801852984,
+      "requestId": 858
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "begin_checkout",
+      "t": 1791801853015,
+      "requestId": 860
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "InitiateCheckout",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "15400021327915"
+        }
+      ],
+      "contentType": "product_group",
+      "eventId": "Gokwik_0.11447273167841665",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "step": "begin_checkout",
+      "t": 1791801853175,
+      "requestId": 867
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "223335195137418",
+      "event": "InitiateCheckout",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "15400021327915"
+        }
+      ],
+      "contentType": "product_group",
+      "eventId": "Gokwik_0.11447273167841665",
+      "source": "tmgoogletagmanager",
+      "fbc": "fb.1.1791801803945.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "step": "begin_checkout",
+      "t": 1791801853176,
+      "requestId": 868
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "gokwik_checkout_initiated",
+      "value": 4499,
+      "currency": "INR",
+      "items": [],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "begin_checkout",
+      "t": 1791801857837,
+      "requestId": 877
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "begin_checkout",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "shopify_IN_15400021327915_67642599178283",
+          "name": "Adaptis Sneakers For Men : Beige",
+          "price": 4499,
+          "variant": "UK 6",
+          "quantity": 1
+        }
+      ],
+      "pageLocation": "https://neemans.com/products/adaptis-sneakers-for-men-beige?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID&variant=67642599178283",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "begin_checkout",
+      "t": 1791801857837,
+      "requestId": 877
+    }
+  ],
+  "raw": {
+    "requestCount": 885,
+    "console": [
+      {
+        "step": "landing",
+        "type": "warning",
+        "text": "Video carousel: carousel_id is not defined"
+      },
+      {
+        "step": "landing",
+        "type": "warning",
+        "text": "In a sandboxed environment, addEventListener may not behave as expected."
+      },
+      {
+        "step": "landing",
+        "type": "warning",
+        "text": "gk_analytics_sdk_unavailable_after_retry: init_threw"
+      },
+      {
+        "step": "landing",
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 403 ()"
+      },
+      {
+        "step": "landing",
+        "type": "error",
+        "text": "Refused to display 'https://logisy.tech/' in a frame because it set 'X-Frame-Options' to 'sameorigin'."
+      },
+      {
+        "step": "landing",
+        "type": "error",
+        "text": "\"serviceworker\" must be a dictionary in your web app manifest."
+      },
+      {
+        "step": "landing",
+        "type": "error",
+        "text": "\"serviceworker\" must be a dictionary in your web app manifest."
+      },
+      {
+        "step": "landing",
+        "type": "error",
+        "text": "\"serviceworker\" must be a dictionary in your web app manifest."
+      },
+      {
+        "step": "landing",
+        "type": "error",
+        "text": "\"serviceworker\" must be a dictionary in your web app manifest."
+      },
+      {
+        "step": "landing",
+        "type": "error",
+        "text": "\"serviceworker\" must be a dictionary in your web app manifest."
+      },
+      {
+        "step": "scroll",
+        "type": "warning",
+        "text": "[Meta Pixel] - Invalid parameter format for currency. Please refer https://developers.facebook.com/docs/meta-pixel/reference/ for valid parameter specifications."
+      },
+      {
+        "step": "begin_checkout",
+        "type": "error",
+        "text": "Failed to launch 'truecallersdk://truesdk/web_verify?type=btmsheet&requestNonce=13f5e7b6-1rbo7&partnerKey=zp95zf5b25f509f50441d8439036dc9d7e40f&partnerName=SHOPIFY_CHECKOUT_PROD&lang=en&privacyUrl=https://www.gokwik.co/privacy-policy&termsUrl=https://www.gokwik.co/terms&loginSuffix=verifymobile&&ctaPrefix=continuewith&ctaColor=%23000000&btnShape=rect&skipOption=useanothernum&ttl=15000' because the"
+      }
+    ],
+    "pageErrors": [
+      {
+        "step": "scroll",
+        "text": "Failed to fetch"
+      },
+      {
+        "step": "begin_checkout",
+        "text": "m.processData is not a function"
+      }
+    ]
+  }
+}

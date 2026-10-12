@@ -1,0 +1,23 @@
+{
+  "name": "preflight-auditor",
+  "version": "1.0.0",
+  "description": "Landing Page Pre-Flight Auditor: drives a real browser through a shopper journey and checks that analytics and ad tags fire correctly before paid traffic is sent to a page.",
+  "type": "module",
+  "bin": {
+    "preflight": "src/cli.mjs"
+  },
+  "scripts": {
+    "audit": "node src/cli.mjs",
+    "sample": "node src/cli.mjs https://neemans.com/products/adaptis-sneakers-for-men-beige --out reports/sample-product",
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
+    "playwright-core": "^1.64.0",
+    "zod": "^4.6.6"
+  }
+}

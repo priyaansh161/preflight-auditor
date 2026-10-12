@@ -1,0 +1,2872 @@
+{
+  "meta": {
+    "url": "https://neemans.com/collections/sneakers",
+    "device": "mobile",
+    "live": false,
+    "startedAt": "2026-10-12T10:44:25.378Z",
+    "finishedAt": "2026-10-12T10:45:56.680Z",
+    "auditor": "preflight-auditor 1.0"
+  },
+  "verdict": {
+    "level": "fix-first",
+    "label": "Works for shoppers, but tracking needs fixes",
+    "summary": "The page sells, but 3 high-severity tracking issues mean ad platforms would get wrong numbers. Fix (or confirm) these before scaling spend."
+  },
+  "findings": [
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Marketing / ads team",
+      "id": "meta-multi-view_item",
+      "category": "Double counting",
+      "severity": "high",
+      "title": "Two Meta pixels both report \"ViewContent\"",
+      "finding": "Each time the shopper viewed the product, the event is sent to 2 pixels: 223335195137418 (via tmgoogletagmanager) and 558552204508330 (via shopify_web_pixel).",
+      "impact": "If both pixels sit in the same ad account or dataset, Meta counts each conversion twice and reported ROAS is overstated. If they belong to separate accounts (e.g. an agency), this is intentional.",
+      "action": "Confirm in Meta Events Manager which pixel your campaigns optimise on; retire the other or remove it from this site."
+    },
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Marketing / ads team",
+      "id": "meta-multi-add_to_cart",
+      "category": "Double counting",
+      "severity": "high",
+      "title": "Two Meta pixels both report \"AddToCart\"",
+      "finding": "Each time the shopper added to cart, the event is sent to 2 pixels: 223335195137418 (via tmgoogletagmanager) and 558552204508330 (via shopify_web_pixel).",
+      "impact": "If both pixels sit in the same ad account or dataset, Meta counts each conversion twice and reported ROAS is overstated. If they belong to separate accounts (e.g. an agency), this is intentional.",
+      "action": "Confirm in Meta Events Manager which pixel your campaigns optimise on; retire the other or remove it from this site."
+    },
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Marketing / ads team",
+      "id": "meta-multi-begin_checkout",
+      "category": "Double counting",
+      "severity": "high",
+      "title": "Two Meta pixels both report \"InitiateCheckout\"",
+      "finding": "Each time the shopper started checkout, the event is sent to 2 pixels: 558552204508330 (via shopify_web_pixel) and 223335195137418 (via tmgoogletagmanager).",
+      "impact": "If both pixels sit in the same ad account or dataset, Meta counts each conversion twice and reported ROAS is overstated. If they belong to separate accounts (e.g. an agency), this is intentional.",
+      "action": "Confirm in Meta Events Manager which pixel your campaigns optimise on; retire the other or remove it from this site."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [
+        "Failed to fetch",
+        "m.processData is not a function",
+        "handleKpPlatformAndIntegrationType is not defined"
+      ],
+      "owner": "Developer",
+      "id": "js-errors",
+      "category": "Page & shopper experience",
+      "severity": "medium",
+      "title": "5 uncaught JavaScript errors on the page",
+      "finding": "Script errors were thrown: 1 during \"Scrolling through the page\", 2 during \"Tapping the first product in the list\", 1 during \"Tapping \"Add to cart\" before choosing a size\", 1 during \"Starting checkout (no order placed)\".",
+      "impact": "A crashing script can stop a tag (or a button) from working for some shoppers. None broke the tested journey, but they make the page fragile.",
+      "action": "Have a developer trace each error to its script and fix or remove it."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [
+        "Choosing an in-stock size: Meta Pixel 223335195137418 PageView",
+        "Choosing an in-stock size: Meta Pixel 558552204508330 PageView",
+        "Choosing an in-stock size: Google Ads AW-766814719 page_view",
+        "Choosing an in-stock size: Google Analytics 4 G-3042L5GP9T page_view",
+        "Adding the item to the cart: Google Analytics 4 G-5RYZDGXEFH page_view",
+        "Adding the item to the cart: Google Analytics 4 G-VDE0ZFZ4LP page_view"
+      ],
+      "owner": "Analytics",
+      "id": "virtual-pv",
+      "category": "Double counting",
+      "severity": "medium",
+      "title": "Extra page views counted with no new page (choosing an in-stock size / adding the item to the cart)",
+      "finding": "No new page loaded, but 6 page-view hits went out (Meta Pixel 223335195137418, Meta Pixel 558552204508330, Google Ads AW-766814719, Google Analytics 4 G-3042L5GP9T, Google Analytics 4 G-5RYZDGXEFH, Google Analytics 4 G-VDE0ZFZ4LP). The theme rewrites the address bar (history change) when a size is picked, and the tags treat that as a new page.",
+      "impact": "Page views and sessions are inflated and engagement rate / bounce rate are distorted. Meta also receives extra PageView signals.",
+      "action": "In GA4 turn off \"page changes based on browser history events\" (or exclude this theme's replaceState), and remove History Change triggers from page-view tags in GTM."
+    },
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Analytics",
+      "id": "ga4-multi",
+      "category": "Double counting",
+      "severity": "medium",
+      "title": "2 Google Analytics properties track this page",
+      "finding": "Page views go to G-3042L5GP9T, G-VDE0ZFZ4LP. Ecommerce events go to: G-3042L5GP9T.",
+      "impact": "Teams reading different properties will see different numbers; any property linked to Google Ads must have complete ecommerce data.",
+      "action": "Document which property is the source of truth and which is linked to Google Ads; remove stale ones."
+    },
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Marketing / ads team",
+      "id": "gads-multi-view_item",
+      "category": "Double counting",
+      "severity": "medium",
+      "title": "3 Google Ads conversion actions fire when the shopper viewed the product",
+      "finding": "One shopper action triggered: AW-766814719 u-vGCKSF3_YbEP_T0u0C; AW-766814719 CXh7CI2gxvoaEP_T0u0C; AW-766814719 Lej_CISgxvoaEP_T0u0C.",
+      "impact": "If more than one is set as a \"Primary\" conversion, Google Ads counts this action several times and bids on inflated numbers.",
+      "action": "In Google Ads → Goals → Conversions, keep exactly one of these as Primary for this action; mark the rest Secondary or remove them."
+    },
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Marketing / ads team",
+      "id": "gads-multi-add_to_cart",
+      "category": "Double counting",
+      "severity": "medium",
+      "title": "4 Google Ads conversion actions fire when the shopper added to cart",
+      "finding": "One shopper action triggered: AW-766814719 lwnICJ6F3_YbEP_T0u0C; AW-766814719 q-ZgCJzr64UYEP_T0u0C; AW-766814719 zbObCJD0uPoaEP_T0u0C; AW-766814719 DPvOCNCi7ZEdEP_T0u0C.",
+      "impact": "If more than one is set as a \"Primary\" conversion, Google Ads counts this action several times and bids on inflated numbers.",
+      "action": "In Google Ads → Goals → Conversions, keep exactly one of these as Primary for this action; mark the rest Secondary or remove them."
+    },
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Marketing / ads team",
+      "id": "gads-zero",
+      "category": "Data accuracy",
+      "severity": "medium",
+      "title": "6 Google Ads conversion tags report a value of ₹0",
+      "finding": "Older GTM conversion tags fire on shopper actions with value 0: Tapping the first product in the list → label CXh7CI2gxvoaEP_T0u0C; Tapping the first product in the list → label Lej_CISgxvoaEP_T0u0C; Adding the item to the cart → label q-ZgCJzr64UYEP_T0u0C; Adding the item to the cart → label zbObCJD0uPoaEP_T0u0C; Adding the item to the cart → label DPvOCNCi7ZEdEP_T0u0C; Starting checkout (no order placed) → label ubtwCIegxvoaEP_T0u0C.",
+      "impact": "If any of these are used in Max Conversion Value / Target ROAS bidding, Google learns that these conversions are worth nothing.",
+      "action": "Pass the cart value into these tags, or confirm they are Secondary (observation-only) conversions."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [
+        "[landing] [Meta Pixel] - Invalid parameter format for currency. Please refer https://developers.facebook.com/docs/meta-pixel/reference/ for valid parameter specifications.",
+        "[open_product] [Meta Pixel] - Invalid parameter format for currency. Please refer https://developers.facebook.com/docs/meta-pixel/reference/ for valid parameter specifications."
+      ],
+      "owner": "Developer",
+      "id": "meta-warnings",
+      "category": "Data accuracy",
+      "severity": "medium",
+      "title": "Meta Pixel reports its own errors in the browser",
+      "finding": "[Meta Pixel] - Invalid parameter format for currency.",
+      "impact": "Meta rejects or ignores the malformed parameter, so the affected event loses value or matching data.",
+      "action": "Find the custom event sending the bad parameter (Meta Pixel Helper shows it) and fix its format."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [
+        "https://neemans.com/collections/sneakers?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+        "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight"
+      ],
+      "owner": "Marketing / ads team",
+      "id": "page-loads",
+      "category": "Page & shopper experience",
+      "severity": "low",
+      "title": "Ad link goes through a redirect before the page loads",
+      "finding": "/collections/sneakers redirects to /collections/sneakers-1 on the same site; the page then loads normally.",
+      "impact": "Adds a little load time to every paid click, and the ad depends on the redirect never being removed.",
+      "action": "Update the ad's final URL to https://neemans.com/collections/sneakers-1."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Marketing / ads team",
+      "id": "third-party",
+      "category": "Page & shopper experience",
+      "severity": "low",
+      "title": "90 outside domains load on this page (28+ separate vendors)",
+      "finding": "656 requests went to 90 outside domains; 28 vendors could be named, the rest are unidentified (full list in the appendix).",
+      "impact": "Each vendor adds load time and another script that can break. Old, unused vendors are common in this list.",
+      "action": "Review the vendor list with marketing and remove anything no one is using."
+    },
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "funnel-gads-begin_checkout",
+      "category": "Tags present & firing",
+      "severity": "low",
+      "title": "Google Ads: no \"begin_checkout\" event when the shopper started checkout",
+      "finding": "The shopper started checkout, but Google Ads never received \"begin_checkout\". A classic conversion tag did fire at this step (label ubtwCIegxvoaEP_T0u0C).",
+      "impact": "Probably covered by the classic conversion tag; only matters if remarketing audiences rely on the standard event.",
+      "action": "Add or fix the \"begin_checkout\" tag/trigger for this step."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Analytics",
+      "id": "list-select",
+      "category": "Tags present & firing",
+      "severity": "low",
+      "title": "GA4 does not record which product was tapped in the list",
+      "finding": "No \"select_item\" event when the shopper opened a product from the collection.",
+      "impact": "List click-through rates per product are unavailable.",
+      "action": "Fire select_item on product-card clicks."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Analytics",
+      "id": "synonyms",
+      "category": "Double counting",
+      "severity": "low",
+      "title": "Same action tracked under two event names in GA4",
+      "finding": "Alongside the standard events, GA4 also receives: ADD-TO-CART-GA4-V2 (≈ add_to_cart).",
+      "impact": "Harmless on its own, but if someone marks the custom one as a key event or imports it into Google Ads, the action is counted twice.",
+      "action": "Retire the legacy custom events, or make sure only the standard event is a key event."
+    },
+    {
+      "confidence": "needs confirmation",
+      "evidence": [],
+      "owner": "Marketing / ads team",
+      "id": "consent",
+      "category": "Privacy & consent",
+      "severity": "low",
+      "title": "All tracking is switched on before the visitor agrees to anything",
+      "finding": "Consent Mode default is \"granted\" for ad_storage, ad_user_data, ad_personalization, analytics_storage, and no consent banner changed it.",
+      "impact": "Good for measurement: nothing is held back. The risk is regulatory: India's DPDP Act requires consent for processing personal data, with its rules being phased in. A legal call, not a launch blocker.",
+      "action": "Confirm the policy with legal; if a banner is added later, re-run this audit to make sure tags still fire after \"Accept\"."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "stock",
+      "category": "Page & shopper experience",
+      "severity": "pass",
+      "title": "In stock (6 of 6 sizes available)"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "atc-works",
+      "category": "Page & shopper experience",
+      "severity": "pass",
+      "title": "Add to cart works (size UK 6 landed in the cart)"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "lcp",
+      "category": "Page & shopper experience",
+      "severity": "pass",
+      "title": "Main content appears quickly (LCP 1.1s)",
+      "finding": "Largest Contentful Paint: 1.11s (good ≤ 2.5s). Measured once on an emulated phone over a fast connection — real shoppers on 4G will see it slower.",
+      "impact": "Slow pages lose paid visitors before they see the product, and Google Ads gives slow pages a worse landing-page score.",
+      "action": "Compress the hero image, defer non-essential third-party scripts."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "cls",
+      "category": "Page & shopper experience",
+      "severity": "pass",
+      "title": "Layout is stable (CLS 0.022)",
+      "finding": "Cumulative Layout Shift: 0.022 (good ≤ 0.1). Measured once on an emulated phone over a fast connection — real shoppers on 4G will see it slower.",
+      "impact": "Content that moves under a thumb causes mis-taps and frustration on mobile.",
+      "action": "Reserve space for banners, images and widgets that load late."
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "tag-scripts",
+      "category": "Page & shopper experience",
+      "severity": "pass",
+      "title": "All scripts loaded successfully"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "present-ga4",
+      "category": "Tags present & firing",
+      "severity": "pass",
+      "title": "Google Analytics 4 is installed and firing (G-3042L5GP9T, G-VDE0ZFZ4LP)"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "present-meta",
+      "category": "Tags present & firing",
+      "severity": "pass",
+      "title": "Meta Pixel is installed and firing (558552204508330)"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "present-gads",
+      "category": "Tags present & firing",
+      "severity": "pass",
+      "title": "Google Ads is installed and firing (AW-766814719)"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "list-view",
+      "category": "Tags present & firing",
+      "severity": "pass",
+      "title": "GA4 records the product list being viewed (view_item_list)"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "phantom",
+      "category": "Tags present & firing",
+      "severity": "pass",
+      "title": "No false \"add to cart\" when the shopper forgets to pick a size"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "dupes",
+      "category": "Double counting",
+      "severity": "pass",
+      "title": "No event fired twice to the same account for one action"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "values",
+      "category": "Data accuracy",
+      "severity": "pass",
+      "title": "Prices and currency match the store on every platform (₹4,499 INR)"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "ids",
+      "category": "Data accuracy",
+      "severity": "pass",
+      "title": "Product IDs in tags match the Shopify catalogue"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "meta-eid",
+      "category": "Data accuracy",
+      "severity": "pass",
+      "title": "Meta conversion events carry an event ID (safe to combine with server-side tracking)"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "params",
+      "category": "Attribution (who gets credit)",
+      "severity": "pass",
+      "title": "UTM and click-ID parameters survive the landing"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "gclid",
+      "category": "Attribution (who gets credit)",
+      "severity": "pass",
+      "title": "Google Ads click ID (gclid) is stored for later conversions"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "fbclid",
+      "category": "Attribution (who gets credit)",
+      "severity": "pass",
+      "title": "Meta click ID (fbclid) is stored for later conversions"
+    },
+    {
+      "confidence": "confirmed",
+      "evidence": [],
+      "owner": "Developer",
+      "id": "ga4-utm",
+      "category": "Attribution (who gets credit)",
+      "severity": "pass",
+      "title": "GA4 receives the campaign (UTM) parameters"
+    }
+  ],
+  "ai": null,
+  "page": {
+    "title": "Buy Sneakers Online & Get Upto 65% Off",
+    "canonical": "https://neemans.com/collections/sneakers-1",
+    "robots": null,
+    "shopify": true,
+    "theme": "Development - Live + CTA only when slot live (1...",
+    "productHandle": null,
+    "nav": {
+      "ttfb": 341.19999998807907,
+      "domContentLoaded": 2537.399999976158,
+      "load": 8365.899999976158
+    }
+  },
+  "product": {
+    "id": 15399930101803,
+    "title": "Stabilon Sneakers For Men : Cream",
+    "price": 4499,
+    "variants": 6
+  },
+  "chosenVariant": {
+    "id": 67639188422699,
+    "title": "UK 6",
+    "price": 4499
+  },
+  "steps": [
+    {
+      "name": "landing",
+      "label": "Landing from a simulated ad click",
+      "startedAt": 1791801865670,
+      "ok": true,
+      "notes": [],
+      "endedAt": 1791801883415
+    },
+    {
+      "name": "scroll",
+      "label": "Scrolling through the page",
+      "startedAt": 1791801883415,
+      "ok": true,
+      "notes": [],
+      "endedAt": 1791801895478
+    },
+    {
+      "name": "open_product",
+      "label": "Tapping the first product in the list",
+      "startedAt": 1791801895478,
+      "ok": true,
+      "notes": [
+        "Opened Stabilon Sneakers For Men : Cream."
+      ],
+      "endedAt": 1791801909622
+    },
+    {
+      "name": "atc_no_size",
+      "label": "Tapping \"Add to cart\" before choosing a size",
+      "startedAt": 1791801909838,
+      "ok": true,
+      "notes": [],
+      "endedAt": 1791801920479
+    },
+    {
+      "name": "select_variant",
+      "label": "Choosing an in-stock size",
+      "startedAt": 1791801920479,
+      "ok": true,
+      "notes": [],
+      "endedAt": 1791801925492
+    },
+    {
+      "name": "add_to_cart",
+      "label": "Adding the item to the cart",
+      "startedAt": 1791801925492,
+      "ok": true,
+      "notes": [],
+      "endedAt": 1791801939452
+    },
+    {
+      "name": "begin_checkout",
+      "label": "Starting checkout (no order placed)",
+      "startedAt": 1791801939452,
+      "ok": true,
+      "notes": [],
+      "endedAt": 1791801956662
+    }
+  ],
+  "vitals": {
+    "lcp": 1112,
+    "cls": 0.022
+  },
+  "landing": {
+    "requestedUrl": "https://neemans.com/collections/sneakers?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID",
+    "finalUrl": "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight",
+    "status": 200,
+    "redirects": [
+      "https://neemans.com/collections/sneakers?utm_source=preflight&utm_medium=audit&utm_campaign=preflight_test&gclid=PREFLIGHT_TEST_GCLID&fbclid=PREFLIGHT_TEST_FBCLID"
+    ]
+  },
+  "realLoadSteps": [
+    "landing",
+    "open_product",
+    "begin_checkout"
+  ],
+  "pageType": "collection",
+  "productStep": "open_product",
+  "productUrl": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+  "installed": {
+    "gtm": [
+      "GTM-578LLRZ",
+      "GTM-MBDRX7M"
+    ],
+    "ga4": [
+      "G-3042L5GP9T",
+      "G-VDE0ZFZ4LP",
+      "G-5RYZDGXEFH"
+    ],
+    "gads": [
+      "AW-766814719",
+      "AW-876772125"
+    ],
+    "meta": [
+      "558552204508330",
+      "223335195137418"
+    ]
+  },
+  "inventory": [
+    {
+      "host": "cdn.shopify.com",
+      "vendor": "Shopify",
+      "requests": 62,
+      "failed": 0
+    },
+    {
+      "host": "pdp.gokwik.co",
+      "vendor": "GoKwik (checkout)",
+      "requests": 37,
+      "failed": 0
+    },
+    {
+      "host": "tr.snapchat.com",
+      "vendor": "Snapchat",
+      "requests": 36,
+      "failed": 0
+    },
+    {
+      "host": "otlp-http-production.shopifysvc.com",
+      "vendor": "Shopify",
+      "requests": 30,
+      "failed": 0
+    },
+    {
+      "host": "wsdk-files.webengage.com",
+      "vendor": "WebEngage",
+      "requests": 30,
+      "failed": 0
+    },
+    {
+      "host": "www.facebook.com",
+      "vendor": "Meta (Facebook/Instagram)",
+      "requests": 28,
+      "failed": 0
+    },
+    {
+      "host": "hits.gokwik.co",
+      "vendor": "GoKwik (checkout)",
+      "requests": 23,
+      "failed": 0
+    },
+    {
+      "host": "www.googleadservices.com",
+      "vendor": "Google Ads",
+      "requests": 22,
+      "failed": 0
+    },
+    {
+      "host": "www.google.com",
+      "vendor": null,
+      "requests": 21,
+      "failed": 0
+    },
+    {
+      "host": "www.googletagmanager.com",
+      "vendor": "Google Tag Manager",
+      "requests": 19,
+      "failed": 0
+    },
+    {
+      "host": "e.clarity.ms",
+      "vendor": "Microsoft Clarity",
+      "requests": 18,
+      "failed": 0
+    },
+    {
+      "host": "analytics.google.com",
+      "vendor": "Google Analytics 4",
+      "requests": 16,
+      "failed": 0
+    },
+    {
+      "host": "c.webengage.com",
+      "vendor": "WebEngage",
+      "requests": 15,
+      "failed": 0
+    },
+    {
+      "host": "t.makehook.ws",
+      "vendor": "Makehook",
+      "requests": 15,
+      "failed": 0
+    },
+    {
+      "host": "lumberjack.razorpay.com",
+      "vendor": "Razorpay",
+      "requests": 13,
+      "failed": 0
+    },
+    {
+      "host": "fonts.gstatic.com",
+      "vendor": "Web fonts",
+      "requests": 13,
+      "failed": 0
+    },
+    {
+      "host": "gkx.gokwik.co",
+      "vendor": "GoKwik (checkout)",
+      "requests": 12,
+      "failed": 0
+    },
+    {
+      "host": "xd-f1cf3d4fdb19408ea770fc6f80817dcb.ecs.us-east-1.on.aws",
+      "vendor": null,
+      "requests": 11,
+      "failed": 0
+    },
+    {
+      "host": "partner.inmobi.com",
+      "vendor": "InMobi",
+      "requests": 11,
+      "failed": 0
+    },
+    {
+      "host": "partner.inmobiapis.com",
+      "vendor": "InMobi",
+      "requests": 10,
+      "failed": 0
+    },
+    {
+      "host": "sc-static.net",
+      "vendor": "Snapchat",
+      "requests": 8,
+      "failed": 0
+    },
+    {
+      "host": "googleads.g.doubleclick.net",
+      "vendor": "Google Ads",
+      "requests": 8,
+      "failed": 0
+    },
+    {
+      "host": "api.useunloq.com",
+      "vendor": "Unloq",
+      "requests": 8,
+      "failed": 0
+    },
+    {
+      "host": "trc-events.taboola.com",
+      "vendor": "Taboola",
+      "requests": 8,
+      "failed": 0
+    },
+    {
+      "host": "www.google-analytics.com",
+      "vendor": "Google Analytics 4",
+      "requests": 7,
+      "failed": 0
+    },
+    {
+      "host": "cdn.taboola.com",
+      "vendor": "Taboola",
+      "requests": 7,
+      "failed": 0
+    },
+    {
+      "host": "sdk.useunloq.com",
+      "vendor": "Unloq",
+      "requests": 6,
+      "failed": 0
+    },
+    {
+      "host": "fonts.googleapis.com",
+      "vendor": "Web fonts",
+      "requests": 6,
+      "failed": 0
+    },
+    {
+      "host": "static-cdn.trackier.com",
+      "vendor": "Trackier",
+      "requests": 6,
+      "failed": 0
+    },
+    {
+      "host": "connect.facebook.net",
+      "vendor": "Meta (Facebook/Instagram)",
+      "requests": 5,
+      "failed": 0
+    },
+    {
+      "host": "ssl.widgets.webengage.com",
+      "vendor": "WebEngage",
+      "requests": 5,
+      "failed": 0
+    },
+    {
+      "host": "rtb.dspcdn.org",
+      "vendor": "DSP (ad network)",
+      "requests": 5,
+      "failed": 0
+    },
+    {
+      "host": "trc.taboola.com",
+      "vendor": "Taboola",
+      "requests": 5,
+      "failed": 0
+    },
+    {
+      "host": "assets.snapmint.com",
+      "vendor": "Snapmint (EMI)",
+      "requests": 5,
+      "failed": 0
+    },
+    {
+      "host": "k6-e4e4123be8e54363900a90353991ca93.ecs.us-west-1.on.aws",
+      "vendor": null,
+      "requests": 5,
+      "failed": 0
+    },
+    {
+      "host": "cdn-4.convertexperiments.com",
+      "vendor": "Convert (A/B testing)",
+      "requests": 4,
+      "failed": 0
+    },
+    {
+      "host": "cdn.nector.io",
+      "vendor": "Nector (loyalty)",
+      "requests": 4,
+      "failed": 0
+    },
+    {
+      "host": "www.clarity.ms",
+      "vendor": "Microsoft Clarity",
+      "requests": 4,
+      "failed": 0
+    },
+    {
+      "host": "bzrcdn.openai.com",
+      "vendor": "OpenAI",
+      "requests": 4,
+      "failed": 0
+    },
+    {
+      "host": "xpdgremote.com",
+      "vendor": null,
+      "requests": 4,
+      "failed": 0
+    },
+    {
+      "host": "www.gstatic.com",
+      "vendor": null,
+      "requests": 4,
+      "failed": 0
+    },
+    {
+      "host": "translate.googleapis.com",
+      "vendor": "Google Translate",
+      "requests": 4,
+      "failed": 0
+    },
+    {
+      "host": "bzr.openai.com",
+      "vendor": "OpenAI",
+      "requests": 4,
+      "failed": 0
+    },
+    {
+      "host": "dmq2kle6yj1z5.cloudfront.net",
+      "vendor": null,
+      "requests": 4,
+      "failed": 0
+    },
+    {
+      "host": "sslwidget.criteo.com",
+      "vendor": "Criteo",
+      "requests": 3,
+      "failed": 0
+    },
+    {
+      "host": "pixel.tapad.com",
+      "vendor": null,
+      "requests": 3,
+      "failed": 0
+    },
+    {
+      "host": "survey.webengage.com",
+      "vendor": "WebEngage",
+      "requests": 3,
+      "failed": 0
+    },
+    {
+      "host": "static.webengage.com",
+      "vendor": "WebEngage",
+      "requests": 3,
+      "failed": 0
+    },
+    {
+      "host": "otel-public.gokwik.co",
+      "vendor": "GoKwik (checkout)",
+      "requests": 3,
+      "failed": 0
+    },
+    {
+      "host": "use.typekit.net",
+      "vendor": "Web fonts",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "magic-plugins.razorpay.com",
+      "vendor": "Razorpay",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "gum.criteo.com",
+      "vendor": "Criteo",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "www.google.co.in",
+      "vendor": null,
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "www.merchant-center-analytics.goog",
+      "vendor": "Google Merchant Center",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "ad.doubleclick.net",
+      "vendor": "Google Ads",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "tr6.snapchat.com",
+      "vendor": "Snapchat",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "sdk.gokwik.co",
+      "vendor": "GoKwik (checkout)",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "cachefront.nector.io",
+      "vendor": "Nector (loyalty)",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "capi-automation.s3.us-east-2.amazonaws.com",
+      "vendor": null,
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "i.l-dsp.inmobicdn.net",
+      "vendor": "InMobi",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "translate.google.com",
+      "vendor": "Google Translate",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "scripts.clarity.ms",
+      "vendor": "Microsoft Clarity",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "z10a5cb53d.webengage.co",
+      "vendor": "WebEngage",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "translate-pa.googleapis.com",
+      "vendor": null,
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "logisy.s3.amazonaws.com",
+      "vendor": "Logisy",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "svc.nitrocommerce.ai",
+      "vendor": "NitroCommerce",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "c.clarity.ms",
+      "vendor": "Microsoft Clarity",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "x.nitrocommerce.ai",
+      "vendor": "NitroCommerce",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "logisy.tech",
+      "vendor": "Logisy",
+      "requests": 2,
+      "failed": 2
+    },
+    {
+      "host": "cm.g.doubleclick.net",
+      "vendor": null,
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "pips.taboola.com",
+      "vendor": "Taboola",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "cds.taboola.com",
+      "vendor": "Taboola",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "urlbird.nitrocommerce.ai",
+      "vendor": "NitroCommerce",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "extensions.shopifycdn.com",
+      "vendor": null,
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "static.hotjar.com",
+      "vendor": "Hotjar",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "api-gw.gokwik.io",
+      "vendor": null,
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "api.gokwik.co",
+      "vendor": "GoKwik (checkout)",
+      "requests": 2,
+      "failed": 0
+    },
+    {
+      "host": "api.razorpay.com",
+      "vendor": "Razorpay",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "shop.app",
+      "vendor": "Shopify",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "stats.g.doubleclick.net",
+      "vendor": null,
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "fxui.useunloq.com",
+      "vendor": "Unloq",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "advertiser.inmobiapis.com",
+      "vendor": "InMobi",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "c.bing.com",
+      "vendor": null,
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "checkout-merchant.snapmint.com",
+      "vendor": "Snapmint (EMI)",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "script.hotjar.com",
+      "vendor": "Hotjar",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "tracking.aws.judge.me",
+      "vendor": "Judge.me (reviews)",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "afiles.webengage.com",
+      "vendor": "WebEngage",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "error-analytics-sessions-production.shopifysvc.com",
+      "vendor": "Shopify",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "cdn.gokwik.co",
+      "vendor": "GoKwik (checkout)",
+      "requests": 1,
+      "failed": 0
+    },
+    {
+      "host": "truesdk",
+      "vendor": null,
+      "requests": 1,
+      "failed": 0
+    }
+  ],
+  "events": [
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "landing",
+      "t": 1791801868232,
+      "requestId": 256
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "page_view",
+      "label": "TDqLCKGF3_YbEP_T0u0C",
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": "sh-2fb6c079-0C26-4702-2726-E5152713CC4F",
+      "step": "landing",
+      "t": 1791801868579,
+      "requestId": 259
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "page_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801868586,
+      "requestId": 261
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": null,
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": null,
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801868589,
+      "requestId": 262
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "view_item_list",
+      "value": null,
+      "currency": null,
+      "items": [
+        {
+          "id": "shopify_IN_15399930101803_67639188422699",
+          "name": "Stabilon Sneakers For Men : Cream",
+          "price": 4499,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7395133030443_41779938361387",
+          "name": "Knit Gliders : Olive",
+          "price": 1999,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_15400009138219_67642078691371",
+          "name": "Adaptis Sneakers For Men : Black",
+          "price": 4499,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_10281386180651_50497000898603",
+          "name": "Lume Core Sneakers for Women : Blue",
+          "price": 3699,
+          "variant": "UK 4",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_8110162837547_45367954538539",
+          "name": "The Sneandals For Men : Black",
+          "price": 4499,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_8085222686763_45243497840683",
+          "name": "The Retro Collectible For Men : Green",
+          "price": 2499,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7268272472107_41167576268843",
+          "name": "Tread Basics : Grey",
+          "price": 1099,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7968586268715_44246939926571",
+          "name": "Rapid Breeze Rally Sneakers for Men : Red",
+          "price": 3499,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7268263657515_41167519481899",
+          "name": "Dashing Walkers : Black",
+          "price": 1399,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_8073976676395_45152040124459",
+          "name": "Hexa Glide Sneakers for Men : Green",
+          "price": 3499,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7952085680171_44191697469483",
+          "name": "Lush Glider For Men : Black",
+          "price": 3999,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7268272865323_41167579447339",
+          "name": "Urban Casuals : Jazz White",
+          "price": 1999,
+          "variant": "UK 4",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7941876809771_44164173496363",
+          "name": "Grid Rush Sneakers For Men : Black",
+          "price": 2399,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7940963696683_44161054965803",
+          "name": "DuoForm Sneakers for Men : Ecru",
+          "price": 2599,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7992071979051_44330482696235",
+          "name": "Rapid Breeze Rally Sneakers for Women : Lilac White",
+          "price": 3499,
+          "variant": "UK 4",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_8085174648875_45243242315819",
+          "name": "The Retro Collectible For Men : Ivory",
+          "price": 2499,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7940950392875_44160987463723",
+          "name": "DuoForm Sneakers for Men : Black",
+          "price": 2599,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7917694844971_44116142653483",
+          "name": "Remix Modish : Ivory Brown",
+          "price": 3499,
+          "variant": "UK 4",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_8095917244459_45296956932139",
+          "name": "Begin Walk Lite For Women : Green",
+          "price": 3699,
+          "variant": "UK 4",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7268272504875_41167576465451",
+          "name": "Tread Basics : Black",
+          "price": 1099,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7268265328683_41167528755243",
+          "name": "Everyday Basic Sneakers : Powder White",
+          "price": 1099,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7268272537643_41167576662059",
+          "name": "Tread Basics : White",
+          "price": 1099,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7268271226923_41167569158187",
+          "name": "The Exuberants : Grey",
+          "price": 1299,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_8110340702251_45368637620267",
+          "name": "The Sneandals For Men : Ivory",
+          "price": 4499,
+          "variant": "UK 6",
+          "quantity": null
+        }
+      ],
+      "pageLocation": "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801868589,
+      "requestId": 263
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "landing",
+      "t": 1791801868619,
+      "requestId": 273
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "landing",
+      "t": 1791801868819,
+      "requestId": 275
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "landing",
+      "t": 1791801868822,
+      "requestId": 276
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "PageView",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "sh-2fb6c079-0C26-4702-2726-E5152713CC4F",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801870257.PREFLIGHT_TEST_FBCLID",
+      "location": "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight",
+      "step": "landing",
+      "t": 1791801870469,
+      "requestId": 306
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "view_item_list",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801870701,
+      "requestId": 318
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "view_item_list",
+      "value": null,
+      "currency": null,
+      "items": [
+        {
+          "id": "shopify_IN_15399930101803_67639188422699",
+          "name": "Stabilon Sneakers For Men : Cream",
+          "price": 4499,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7395133030443_41779938361387",
+          "name": "Knit Gliders : Olive",
+          "price": 1999,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_15400009138219_67642078691371",
+          "name": "Adaptis Sneakers For Men : Black",
+          "price": 4499,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_10281386180651_50497000898603",
+          "name": "Lume Core Sneakers for Women : Blue",
+          "price": 3699,
+          "variant": "UK 4",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_8110162837547_45367954538539",
+          "name": "The Sneandals For Men : Black",
+          "price": 4499,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_8085222686763_45243497840683",
+          "name": "The Retro Collectible For Men : Green",
+          "price": 2499,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7268272472107_41167576268843",
+          "name": "Tread Basics : Grey",
+          "price": 1099,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7968586268715_44246939926571",
+          "name": "Rapid Breeze Rally Sneakers for Men : Red",
+          "price": 3499,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7268263657515_41167519481899",
+          "name": "Dashing Walkers : Black",
+          "price": 1399,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_8073976676395_45152040124459",
+          "name": "Hexa Glide Sneakers for Men : Green",
+          "price": 3499,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7952085680171_44191697469483",
+          "name": "Lush Glider For Men : Black",
+          "price": 3999,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7268272865323_41167579447339",
+          "name": "Urban Casuals : Jazz White",
+          "price": 1999,
+          "variant": "UK 4",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7941876809771_44164173496363",
+          "name": "Grid Rush Sneakers For Men : Black",
+          "price": 2399,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7940963696683_44161054965803",
+          "name": "DuoForm Sneakers for Men : Ecru",
+          "price": 2599,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7992071979051_44330482696235",
+          "name": "Rapid Breeze Rally Sneakers for Women : Lilac White",
+          "price": 3499,
+          "variant": "UK 4",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_8085174648875_45243242315819",
+          "name": "The Retro Collectible For Men : Ivory",
+          "price": 2499,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7940950392875_44160987463723",
+          "name": "DuoForm Sneakers for Men : Black",
+          "price": 2599,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7917694844971_44116142653483",
+          "name": "Remix Modish : Ivory Brown",
+          "price": 3499,
+          "variant": "UK 4",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_8095917244459_45296956932139",
+          "name": "Begin Walk Lite For Women : Green",
+          "price": 3699,
+          "variant": "UK 4",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7268272504875_41167576465451",
+          "name": "Tread Basics : Black",
+          "price": 1099,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7268265328683_41167528755243",
+          "name": "Everyday Basic Sneakers : Powder White",
+          "price": 1099,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7268272537643_41167576662059",
+          "name": "Tread Basics : White",
+          "price": 1099,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_7268271226923_41167569158187",
+          "name": "The Exuberants : Grey",
+          "price": 1299,
+          "variant": "UK 6",
+          "quantity": null
+        },
+        {
+          "id": "shopify_IN_8110340702251_45368637620267",
+          "name": "The Sneandals For Men : Ivory",
+          "price": 4499,
+          "variant": "UK 6",
+          "quantity": null
+        }
+      ],
+      "pageLocation": "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801870702,
+      "requestId": 319
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "remarketing",
+      "label": null,
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": null,
+      "step": "landing",
+      "t": 1791801870703,
+      "requestId": 320
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-VDE0ZFZ4LP",
+      "event": "page_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801871020,
+      "requestId": 326
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "kp_visitors",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "Gokwik-zVoToGosiqJUFUM6SZS4cICFpQ5G",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801870257.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight",
+      "step": "landing",
+      "t": 1791801872908,
+      "requestId": 366
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "conversion",
+      "label": "Lej_CISgxvoaEP_T0u0C",
+      "value": 0,
+      "legacyTag": true,
+      "currency": null,
+      "eventId": null,
+      "step": "landing",
+      "t": 1791801874132,
+      "requestId": 404
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "landing",
+      "t": 1791801875156,
+      "requestId": 456
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "landing",
+      "t": 1791801875355,
+      "requestId": 466
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "landing",
+      "t": 1791801875561,
+      "requestId": 472
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "checkout_gokwik",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801875699,
+      "requestId": 477
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "plp_quick_nav_impression",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801875699,
+      "requestId": 477
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "loyalty_touchpoint_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801875699,
+      "requestId": 477
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "loyalty_touchpoint_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "landing",
+      "t": 1791801875699,
+      "requestId": 477
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "landing",
+      "t": 1791801879355,
+      "requestId": 536
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "kp_engaged_visitors",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "Gokwik-w0CmCpArY3CyjCEJ7SIVoyFkASeo",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801870257.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight",
+      "step": "scroll",
+      "t": 1791801885769,
+      "requestId": 698
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "scroll_depth",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "scroll",
+      "t": 1791801888578,
+      "requestId": 725
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "scroll_depth",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "scroll",
+      "t": 1791801888578,
+      "requestId": 725
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "scroll_depth",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/collections/sneakers-1?fbclid=PREFLIGHT_TEST_FBCLID&gclid=PREFLIGHT_TEST_GCLID&utm_campaign=preflight_test&utm_medium=audit&utm_source=preflight",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "scroll",
+      "t": 1791801888578,
+      "requestId": 725
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "open_product",
+      "t": 1791801895755,
+      "requestId": 731
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "open_product",
+      "t": 1791801895781,
+      "requestId": 732
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "open_product",
+      "t": 1791801898469,
+      "requestId": 956
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "open_product",
+      "t": 1791801898592,
+      "requestId": 958
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "open_product",
+      "t": 1791801898667,
+      "requestId": 961
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "open_product",
+      "t": 1791801898869,
+      "requestId": 965
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "page_view",
+      "label": "TDqLCKGF3_YbEP_T0u0C",
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": "sh-2fb739fc-8CF9-4D40-2A0A-38BD42440BB7",
+      "step": "open_product",
+      "t": 1791801900366,
+      "requestId": 1035
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "view_item",
+      "label": "u-vGCKSF3_YbEP_T0u0C",
+      "value": 4499,
+      "legacyTag": false,
+      "currency": "INR",
+      "eventId": "sh-2fb73a45-C01E-4C83-9F83-205C7D3E39D2",
+      "step": "open_product",
+      "t": 1791801900367,
+      "requestId": 1036
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "remarketing",
+      "label": null,
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": null,
+      "step": "open_product",
+      "t": 1791801901100,
+      "requestId": 1048
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "conversion",
+      "label": "CXh7CI2gxvoaEP_T0u0C",
+      "value": 0,
+      "legacyTag": true,
+      "currency": null,
+      "eventId": null,
+      "step": "open_product",
+      "t": 1791801901102,
+      "requestId": 1050
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "remarketing",
+      "label": null,
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": null,
+      "step": "open_product",
+      "t": 1791801901102,
+      "requestId": 1051
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "conversion",
+      "label": "Lej_CISgxvoaEP_T0u0C",
+      "value": 0,
+      "legacyTag": true,
+      "currency": null,
+      "eventId": null,
+      "step": "open_product",
+      "t": 1791801901103,
+      "requestId": 1053
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "view_item",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "shopify_IN_15399930101803_67639188422699",
+          "name": "Stabilon Sneakers For Men : Cream",
+          "price": 4499,
+          "variant": "UK 6",
+          "quantity": 1
+        }
+      ],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "open_product",
+      "t": 1791801901288,
+      "requestId": 1066
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "223335195137418",
+      "event": "PageView",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "ob3_plugin-set_7ffd643cb605e041e9cb7c0399e8a791c0c8922df1a0efcd57d85e96be8009c0",
+      "source": "tmgoogletagmanager",
+      "fbc": "fb.1.1791801870257.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+      "step": "open_product",
+      "t": 1791801901625,
+      "requestId": 1072
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "223335195137418",
+      "event": "ViewContent",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "15399930101803"
+        }
+      ],
+      "contentType": "product_group",
+      "eventId": "sh-2fb73a45-C01E-4C83-9F83-205C7D3E39D2",
+      "source": "tmgoogletagmanager",
+      "fbc": "fb.1.1791801870257.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+      "step": "open_product",
+      "t": 1791801901625,
+      "requestId": 1073
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "PageView",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "ob3_plugin-set_6d3eca6d88522b5dfdfcf7db7f256e5edccdc31c5990a21f031317c73cb51bf4",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801870257.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+      "step": "open_product",
+      "t": 1791801901686,
+      "requestId": 1077
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "ViewContent",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "15399930101803"
+        }
+      ],
+      "contentType": "product_group",
+      "eventId": "sh-2fb73a45-C01E-4C83-9F83-205C7D3E39D2",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801870257.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+      "step": "open_product",
+      "t": 1791801901702,
+      "requestId": 1078
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-876772125",
+      "event": "remarketing",
+      "label": null,
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": null,
+      "step": "open_product",
+      "t": 1791801902345,
+      "requestId": 1107
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "open_product",
+      "t": 1791801902427,
+      "requestId": 1114
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "open_product",
+      "t": 1791801902531,
+      "requestId": 1134
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "open_product",
+      "t": 1791801902728,
+      "requestId": 1147
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "checkout_gokwik",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "open_product",
+      "t": 1791801906093,
+      "requestId": 1207
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "loyalty_touchpoint_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "open_product",
+      "t": 1791801906093,
+      "requestId": 1207
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "loyalty_touchpoint_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "open_product",
+      "t": 1791801906093,
+      "requestId": 1207
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "open_product",
+      "t": 1791801906533,
+      "requestId": 1214
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "SubscribedButtonClick",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "ob3_plugin-set_8ab4a96dabbe4e4fe6e1ebe9e03c35c09a319ee40b89f98f94c0aea3a385a1ef",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801870257.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+      "step": "atc_no_size",
+      "t": 1791801910243,
+      "requestId": 1281
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "atc_no_size",
+      "t": 1791801910245,
+      "requestId": 1282
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "Neemans_Opti_Tracking",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "atc_no_size",
+      "t": 1791801915097,
+      "requestId": 1300
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "inp_slow_interaction",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "atc_no_size",
+      "t": 1791801915097,
+      "requestId": 1300
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "inp_slow_interaction",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "atc_no_size",
+      "t": 1791801915097,
+      "requestId": 1300
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "inp_slow_interaction",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "atc_no_size",
+      "t": 1791801915097,
+      "requestId": 1300
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-5RYZDGXEFH",
+      "event": "form_start",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "select_variant",
+      "t": 1791801920715,
+      "requestId": 1355
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-876772125",
+      "event": "form_start",
+      "label": null,
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": null,
+      "step": "select_variant",
+      "t": 1791801920715,
+      "requestId": 1356
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "223335195137418",
+      "event": "PageView",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "ob3_plugin-set_909f22a976f2c3f2d28936da2e59ee869902e4ce04855aa638575e29fdf249f2",
+      "source": "tmgoogletagmanager",
+      "fbc": "fb.1.1791801870257.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "step": "select_variant",
+      "t": 1791801921330,
+      "requestId": 1366
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "PageView",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "ob3_plugin-set_0dc66018af224645a41e661e4c8255eae5bcbf2fbebfdece02f4691e21ad34e1",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801870257.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "step": "select_variant",
+      "t": 1791801921410,
+      "requestId": 1369
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "select_variant",
+      "t": 1791801921528,
+      "requestId": 1371
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "page_view",
+      "label": null,
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": null,
+      "step": "select_variant",
+      "t": 1791801922281,
+      "requestId": 1376
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "scroll_depth",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "select_variant",
+      "t": 1791801922283,
+      "requestId": 1378
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "loyalty_touchpoint_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "select_variant",
+      "t": 1791801922283,
+      "requestId": 1378
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "page_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "select_variant",
+      "t": 1791801922284,
+      "requestId": 1379
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-VDE0ZFZ4LP",
+      "event": "form_start",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "select_variant",
+      "t": 1791801922284,
+      "requestId": 1380
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-5RYZDGXEFH",
+      "event": "page_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "add_to_cart",
+      "t": 1791801927246,
+      "requestId": 1387
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-VDE0ZFZ4LP",
+      "event": "page_view",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "add_to_cart",
+      "t": 1791801927252,
+      "requestId": 1388
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-876772125",
+      "event": "form_submit",
+      "label": null,
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": null,
+      "step": "add_to_cart",
+      "t": 1791801930724,
+      "requestId": 1393
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "SubscribedButtonClick",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "ob3_plugin-set_64b98ce9c123443ae2709aef392296cac0871d796cd3480a888e1e544c8a4179",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801870257.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "step": "add_to_cart",
+      "t": 1791801930740,
+      "requestId": 1395
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "add_to_cart",
+      "t": 1791801930754,
+      "requestId": 1396
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "add_to_cart",
+      "t": 1791801931584,
+      "requestId": 1405
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "add_to_cart",
+      "label": "lwnICJ6F3_YbEP_T0u0C",
+      "value": 4499,
+      "legacyTag": false,
+      "currency": "INR",
+      "eventId": "sh-2fb8429f-2C8E-47CF-9B3F-0EA828F601F7",
+      "step": "add_to_cart",
+      "t": 1791801931638,
+      "requestId": 1406
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "add_to_cart",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "shopify_IN_15399930101803_67639188422699",
+          "name": "Stabilon Sneakers For Men : Cream",
+          "price": 4499,
+          "variant": "UK 6",
+          "quantity": 1
+        }
+      ],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "add_to_cart",
+      "t": 1791801931640,
+      "requestId": 1408
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "conversion",
+      "label": "q-ZgCJzr64UYEP_T0u0C",
+      "value": 0,
+      "legacyTag": true,
+      "currency": null,
+      "eventId": null,
+      "step": "add_to_cart",
+      "t": 1791801931641,
+      "requestId": 1412
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "conversion",
+      "label": "zbObCJD0uPoaEP_T0u0C",
+      "value": 0,
+      "legacyTag": true,
+      "currency": null,
+      "eventId": null,
+      "step": "add_to_cart",
+      "t": 1791801931641,
+      "requestId": 1413
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "remarketing",
+      "label": null,
+      "value": null,
+      "legacyTag": false,
+      "currency": null,
+      "eventId": null,
+      "step": "add_to_cart",
+      "t": 1791801931643,
+      "requestId": 1414
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "add_to_cart",
+      "t": 1791801931663,
+      "requestId": 1418
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "223335195137418",
+      "event": "AddToCart",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "15399930101803"
+        }
+      ],
+      "contentType": "product_group",
+      "eventId": "sh-2fb8429f-2C8E-47CF-9B3F-0EA828F601F7",
+      "source": "tmgoogletagmanager",
+      "fbc": "fb.1.1791801870257.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "step": "add_to_cart",
+      "t": 1791801931702,
+      "requestId": 1421
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "AddToCart",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "15399930101803"
+        }
+      ],
+      "contentType": "product_group",
+      "eventId": "sh-2fb8429f-2C8E-47CF-9B3F-0EA828F601F7",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801870257.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "step": "add_to_cart",
+      "t": 1791801931740,
+      "requestId": 1424
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-VDE0ZFZ4LP",
+      "event": "New_GA4_ATC - PDP",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "add_to_cart",
+      "t": 1791801935577,
+      "requestId": 1455
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "conversion",
+      "label": "DPvOCNCi7ZEdEP_T0u0C",
+      "value": 0,
+      "legacyTag": true,
+      "currency": null,
+      "eventId": null,
+      "step": "add_to_cart",
+      "t": 1791801935975,
+      "requestId": 1457
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "ADD-TO-CART-GA4-V2",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "add_to_cart",
+      "t": 1791801936038,
+      "requestId": 1460
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "time_on_site_60s",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "add_to_cart",
+      "t": 1791801936038,
+      "requestId": 1461
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "SubscribedButtonClick",
+      "value": null,
+      "currency": null,
+      "items": [],
+      "contentType": null,
+      "eventId": "ob3_plugin-set_43a39f499a69805fe14074dcdac4600b2aecdfd019a49c1106b010a0b05b3514",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801870257.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "step": "begin_checkout",
+      "t": 1791801944669,
+      "requestId": 1475
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "begin_checkout",
+      "t": 1791801944772,
+      "requestId": 1479
+    },
+    {
+      "platform": "gads",
+      "vendor": "Google Ads",
+      "destination": "AW-766814719",
+      "event": "conversion",
+      "label": "ubtwCIegxvoaEP_T0u0C",
+      "value": 0,
+      "legacyTag": true,
+      "currency": null,
+      "eventId": null,
+      "step": "begin_checkout",
+      "t": 1791801945774,
+      "requestId": 1510
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "begin_checkout",
+      "t": 1791801945810,
+      "requestId": 1516
+    },
+    {
+      "platform": "snap",
+      "vendor": "Snapchat Pixel",
+      "destination": "1d53c387",
+      "event": "(hit)",
+      "step": "begin_checkout",
+      "t": 1791801945852,
+      "requestId": 1518
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "558552204508330",
+      "event": "InitiateCheckout",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "15399930101803"
+        }
+      ],
+      "contentType": "product_group",
+      "eventId": "Gokwik_0.7606157170266366",
+      "source": "shopify_web_pixel",
+      "fbc": "fb.1.1791801870257.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "step": "begin_checkout",
+      "t": 1791801945985,
+      "requestId": 1525
+    },
+    {
+      "platform": "meta",
+      "vendor": "Meta Pixel",
+      "destination": "223335195137418",
+      "event": "InitiateCheckout",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "15399930101803"
+        }
+      ],
+      "contentType": "product_group",
+      "eventId": "Gokwik_0.7606157170266366",
+      "source": "tmgoogletagmanager",
+      "fbc": "fb.1.1791801870257.PREFLIGHT_TEST_FBCLID.AQYAAQMC",
+      "location": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "step": "begin_checkout",
+      "t": 1791801945988,
+      "requestId": 1526
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "gokwik_checkout_initiated",
+      "value": 4499,
+      "currency": "INR",
+      "items": [],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "begin_checkout",
+      "t": 1791801950681,
+      "requestId": 1533
+    },
+    {
+      "platform": "ga4",
+      "vendor": "Google Analytics 4",
+      "destination": "G-3042L5GP9T",
+      "event": "begin_checkout",
+      "value": 4499,
+      "currency": "INR",
+      "items": [
+        {
+          "id": "shopify_IN_15399930101803_67639188422699",
+          "name": "Stabilon Sneakers For Men : Cream",
+          "price": 4499,
+          "variant": "UK 6",
+          "quantity": 1
+        }
+      ],
+      "pageLocation": "https://neemans.com/products/stabilon-sneakers-for-men-cream?_gl=1*1f6zs0s*_up*MQ..&gclid=PREFLIGHT_TEST_GCLID&variant=67639188422699",
+      "eventId": null,
+      "valueIsText": false,
+      "step": "begin_checkout",
+      "t": 1791801950681,
+      "requestId": 1533
+    }
+  ],
+  "raw": {
+    "requestCount": 1539,
+    "console": [
+      {
+        "step": "landing",
+        "type": "warning",
+        "text": "In a sandboxed environment, addEventListener may not behave as expected."
+      },
+      {
+        "step": "landing",
+        "type": "warning",
+        "text": "[Meta Pixel] - Invalid parameter format for currency. Please refer https://developers.facebook.com/docs/meta-pixel/reference/ for valid parameter specifications."
+      },
+      {
+        "step": "landing",
+        "type": "warning",
+        "text": "gk_analytics_sdk_unavailable_after_retry: init_threw"
+      },
+      {
+        "step": "landing",
+        "type": "error",
+        "text": "\"serviceworker\" must be a dictionary in your web app manifest."
+      },
+      {
+        "step": "landing",
+        "type": "error",
+        "text": "\"serviceworker\" must be a dictionary in your web app manifest."
+      },
+      {
+        "step": "landing",
+        "type": "error",
+        "text": "\"serviceworker\" must be a dictionary in your web app manifest."
+      },
+      {
+        "step": "landing",
+        "type": "error",
+        "text": "\"serviceworker\" must be a dictionary in your web app manifest."
+      },
+      {
+        "step": "landing",
+        "type": "error",
+        "text": "\"serviceworker\" must be a dictionary in your web app manifest."
+      },
+      {
+        "step": "landing",
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 403 ()"
+      },
+      {
+        "step": "landing",
+        "type": "error",
+        "text": "Refused to display 'https://logisy.tech/' in a frame because it set 'X-Frame-Options' to 'sameorigin'."
+      },
+      {
+        "step": "open_product",
+        "type": "warning",
+        "text": "Video carousel: carousel_id is not defined"
+      },
+      {
+        "step": "open_product",
+        "type": "warning",
+        "text": "In a sandboxed environment, addEventListener may not behave as expected."
+      },
+      {
+        "step": "open_product",
+        "type": "error",
+        "text": "\"serviceworker\" must be a dictionary in your web app manifest."
+      },
+      {
+        "step": "open_product",
+        "type": "error",
+        "text": "\"serviceworker\" must be a dictionary in your web app manifest."
+      },
+      {
+        "step": "open_product",
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 403 ()"
+      },
+      {
+        "step": "open_product",
+        "type": "error",
+        "text": "Refused to display 'https://logisy.tech/' in a frame because it set 'X-Frame-Options' to 'sameorigin'."
+      },
+      {
+        "step": "open_product",
+        "type": "warning",
+        "text": "[Meta Pixel] - Invalid parameter format for currency. Please refer https://developers.facebook.com/docs/meta-pixel/reference/ for valid parameter specifications."
+      },
+      {
+        "step": "open_product",
+        "type": "error",
+        "text": "\"serviceworker\" must be a dictionary in your web app manifest."
+      },
+      {
+        "step": "open_product",
+        "type": "error",
+        "text": "\"serviceworker\" must be a dictionary in your web app manifest."
+      },
+      {
+        "step": "open_product",
+        "type": "error",
+        "text": "\"serviceworker\" must be a dictionary in your web app manifest."
+      },
+      {
+        "step": "atc_no_size",
+        "type": "error",
+        "text": "Access to font at 'https://dmq2kle6yj1z5.cloudfront.net/~10a5cb53d/2024-10-24T08%3A31%3A27.797ZDIN-2014_Regular.otf' from origin 'https://survey.webengage.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource."
+      },
+      {
+        "step": "atc_no_size",
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_FAILED"
+      },
+      {
+        "step": "begin_checkout",
+        "type": "error",
+        "text": "Failed to launch 'truecallersdk://truesdk/web_verify?type=btmsheet&requestNonce=c8f95fa5-1rbo7&partnerKey=zp95zf5b25f509f50441d8439036dc9d7e40f&partnerName=SHOPIFY_CHECKOUT_PROD&lang=en&privacyUrl=https://www.gokwik.co/privacy-policy&termsUrl=https://www.gokwik.co/terms&loginSuffix=verifymobile&&ctaPrefix=continuewith&ctaColor=%23000000&btnShape=rect&skipOption=useanothernum&ttl=15000' because the"
+      }
+    ],
+    "pageErrors": [
+      {
+        "step": "scroll",
+        "text": "Failed to fetch"
+      },
+      {
+        "step": "open_product",
+        "text": "m.processData is not a function"
+      },
+      {
+        "step": "open_product",
+        "text": "handleKpPlatformAndIntegrationType is not defined"
+      },
+      {
+        "step": "atc_no_size",
+        "text": "Failed to fetch"
+      },
+      {
+        "step": "begin_checkout",
+        "text": "m.processData is not a function"
+      }
+    ]
+  }
+}
