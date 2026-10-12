@@ -180,12 +180,19 @@ export async function runSession({ url, device = 'mobile', live = false, headed 
 
       // 4. Choose the first size that is actually in stock (ground truth from Shopify).
       const s4 = begin('select_variant', 'Choosing an in-stock size');
-      const variant = ev.product.variants.find(v => v.available);
-      ev.chosenVariant = variant || null;
-      if (!variant) { s4.ok = false; s4.notes.push('No size is in stock.'); }
+      // If one size can't be selected (unusual markup), try the next in-stock size before giving up.
+      const inStock = ev.product.variants.filter(v => v.available);
+      ev.chosenVariant = inStock[0] || null;
+      if (!inStock.length) { s4.ok = false; s4.notes.push('No size is in stock.'); }
       else {
-        const picked = await pickVariant(page, variant);
-        if (!picked) { s4.ok = false; s4.notes.push(`Could not select "${variant.title}" on the page.`); }
+        const tried = [];
+        for (const v of inStock.slice(0, 3)) {
+          tried.push(v.title);
+          if (await pickVariant(page, v)) { ev.chosenVariant = v; break; }
+          ev.chosenVariant = null;
+        }
+        if (!ev.chosenVariant) { s4.ok = false; s4.notes.push(`Could not select any size on the page (tried ${tried.join(', ')}).`); ev.chosenVariant = inStock[0]; }
+        else if (tried.length > 1) s4.notes.push(`Selected ${ev.chosenVariant.title} (could not select ${tried.slice(0, -1).join(', ')}).`);
       }
       await settle();
       s4.endedAt = Date.now();
@@ -195,6 +202,10 @@ export async function runSession({ url, device = 'mobile', live = false, headed 
       if (!(await clickAddToCart(page))) { s5.ok = false; s5.notes.push('Could not find a visible Add to cart button.'); }
       await settle();
       ev.cartAfter = await cartJs();
+      // A click is not a success: the step only passes if the item really reached the cart.
+      if (s5.ok && (ev.cartAfter?.item_count ?? 0) <= (ev.cartAfterNoSize?.item_count ?? ev.cartBefore?.item_count ?? 0)) {
+        s5.ok = false; s5.notes.push('The button was tapped but the cart did not change.');
+      }
       s5.endedAt = Date.now();
 
       // 6. Start checkout (stops at the checkout screen — no order is ever placed).
@@ -233,14 +244,16 @@ async function pickVariant(page, variant) {
     const done = await page.evaluate(val => {
       // Themes label options differently ("UK 6" in data, "6" on the button), so match on
       // the exact text first, then on the label being one whole word of the option value.
+      // Only the first line counts: labels often carry badges like "6 / Only 6 left".
+      const firstLine = t => (t || '').split(/\r?\n/).map(x => x.trim()).find(Boolean) || '';
       const words = s => (s || '').toLowerCase().split(/[^a-z0-9.]+/).filter(Boolean);
       const exact = t => words(t).join(' ') === words(val).join(' ');
       const partial = t => { const w = words(t); return w.length > 0 && w.every(x => words(val).includes(x)); };
       const shown = el => !!el && el.getClientRects().length > 0;
       const scope = document.querySelector('variant-picker, variant-radios, variant-selects') || document.querySelector('form[action*="/cart/add"]')?.closest('section') || document;
       const candidates = [
-        ...[...scope.querySelectorAll('input[type=radio]')].map(i => ({ el: i.labels?.[0] || i, text: i.value === val ? val : (i.labels?.[0]?.innerText || i.value), target: i })),
-        ...[...scope.querySelectorAll('button, [role=radio], [data-value]')].map(b => ({ el: b, text: b.dataset.value || b.innerText, target: b })),
+        ...[...scope.querySelectorAll('input[type=radio]')].map(i => ({ el: i.labels?.[0] || i, text: i.value === val ? val : firstLine(i.labels?.[0]?.innerText || i.value), target: i })),
+        ...[...scope.querySelectorAll('button, [role=radio], [data-value]')].map(b => ({ el: b, text: b.dataset.value || firstLine(b.innerText), target: b })),
       ].filter(c => shown(c.el) && !c.target.disabled);
       const hit = candidates.find(c => exact(c.text)) || candidates.find(c => partial(c.text));
       if (hit) { hit.el.click(); return true; }
