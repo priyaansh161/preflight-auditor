@@ -1,0 +1,55 @@
+# Runs one audit on request. Triggered by the web page (via the Netlify "start" function) or by
+# hand from the Actions tab. The report is uploaded as an artifact named "report"; the web page's
+# "status" function finds this run by its run-name and fetches the artifact.
+name: audit
+run-name: audit ${{ inputs.request_id }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: Landing page to audit
+        required: true
+        default: https://neemans.com/products/adaptis-sneakers-for-men-beige
+      request_id:
+        description: Id the web page uses to find this run (any short string when run by hand)
+        required: true
+        default: manual
+      device:
+        description: mobile or desktop
+        required: false
+        default: mobile
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-${{ inputs.request_id }}
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Run the auditor
+        env:
+          AUDIT_URL: ${{ inputs.url }}
+          AUDIT_DEVICE: ${{ inputs.device }}
+        run: |
+          flags=""
+          [ "$AUDIT_DEVICE" = "desktop" ] && flags="--desktop"
+          # Exit code 2 means "not ready" — a valid result, not a failure.
+          node src/cli.mjs "$AUDIT_URL" --browser chrome --out out $flags || [ $? -eq 2 ]
+      - uses: actions/upload-artifact@v4
+        with:
+          name: report
+          path: |
+            out/report.html
+            out/report.json
+          retention-days: 7
